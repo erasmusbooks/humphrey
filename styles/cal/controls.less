@@ -1,0 +1,90 @@
+
+#calendar-controls {
+	height: @header-height;
+	border-bottom: 1px solid @main-line;
+
+	.weekly-nav {
+		display: inline;
+
+		a {
+			display: inline-block;
+			text-decoration: none;
+			height: @header-height;
+			border-right: 1px solid @main-line;
+			text-align: center;
+			color: @main-vague;
+			float: left;
+			font-size: 1.9em;
+			line-height: @header-height - 2px;
+			padding: 0 .5em;
+			
+			&:hover { 
+				color: @main-text;				
+			}
+
+			&.next {
+				border-left: 1px solid @main-line;
+				margin-left: .8em;
+			}
+
+			&.prev {
+				margin-right: .8em;
+			}
+		} 
+
+		h1 {
+			font-size: 1em;
+			line-height: @header-height;
+			font-weight: 300;
+			text-transform: uppercase;
+			display: inline-block;
+			float: left;
+		}
+
+		.weekly-num {
+			display: inline-block;
+			width: 2em;
+			height: 2em;
+			background-color: @main-vague;
+			margin-left: .5em;
+			margin-top: .8em;
+			border-radius: 100%;
+			text-align: center;
+			float: left;
+
+			strong {
+				font-size: 1em;
+				line-height: 2em;
+				font-weight: 600;
+				color: @main-back;
+				position: relative;
+				top: -1px;
+			}
+
+			&:hover {
+				background-color: @royalblue;
+			}
+		}
+
+	}
+
+	.weekly-options {
+		float: right;
+
+		a {
+			float: left;
+			font-weight: 300;
+			line-height: @header-height - 2px;
+			color: @main-vague;
+			border-left: 1px solid @main-line;
+			text-transform: uppercase;
+			text-decoration: none;
+			padding: 0 1.3em;
+
+			&:hover {
+				color: @main-text;
+			}
+		}
+
+	}
+}

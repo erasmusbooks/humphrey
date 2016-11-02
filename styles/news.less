@@ -1,0 +1,348 @@
+#news.content {
+	padding: 0;
+	position: relative;
+	.clearfix();
+
+	#news-list {
+		list-style-type: none;
+		margin: 0 0 0 20%;
+		padding: 0;
+
+		h4 {
+			color: @main-text;
+			padding: 1rem 1rem 1rem 2rem;
+			border-bottom: 1px solid @main-line;
+			font-weight: 300;
+			text-align: center;
+			font-size: 2em;
+		}
+
+		.article {
+			display: table;
+			table-layout: fixed;
+			width: 100%;
+			padding: 0;
+
+			.article-wrapper {
+				display: table-cell;
+				padding: 1em 1em 2em 2em;
+				width: 75%;
+
+				.title, .meta-top {
+					position: relative;
+					top: 1rem;
+				}
+
+				.entry {
+					margin-top: 2rem;
+				}
+
+			}
+
+			.article-side {
+				display: table-cell;
+				width: 25%;
+				border-left: 1px solid @main-line;
+
+				.author {
+					position: relative;
+					padding: 1rem 1rem 1rem 4rem;
+					min-height: 3em;
+					margin-bottom: 1em;
+					border-bottom: 1px solid @main-line;
+
+					.avatar {
+						position: absolute;
+						top: .7em;
+						left: 1em;
+						width: 2.7rem;
+						height: 2.7rem;
+						display: inline-block;
+						border-radius: 100%;
+						background-size: cover;
+						background-position: center center;
+						border: 2px solid @header-line;
+					}
+
+					.author-link {
+						position: relative;
+						top: -.2em;
+						font-size: 1.05rem;
+						line-height: .8em;
+						font-weight: bold;
+						color: lighten(@main-text, 10%);
+						text-decoration: none;
+					}
+
+					.author-description {
+						position: relative;
+						top: -.3em;
+						font-size: .8rem;
+						color: lighten(@main-text, 20%);
+					}
+				}
+
+				.categories {
+					padding: 0 1em;
+					margin-bottom: 1em;
+				}
+
+				.comments-link {
+					float: left;
+					padding: 0 1em;
+				}
+			}
+		}
+	}
+
+	#news-side {
+		position: absolute;
+		left: 0;
+		top: 0;
+		min-height: ~"calc(100vh - @{header-height})";
+		height: 100%;
+		width: 20%;
+		border-right: 1px solid @main-line;
+		overflow: hidden;
+		background-color: lighten(@main-line, 5%);
+
+		.navigation {
+			border-bottom: 1px solid @main-line;
+			position: relative;
+			padding: 1em 2em;
+			text-align: center;
+
+			.next, .prev {
+				font-family: 'Material Icons';
+				font-size: 2em;
+				line-height: 1.7em;
+				padding: 0 .3em;
+				text-decoration: none;
+				border-style: solid;
+				border-color: @main-line;
+				border-width: 0;
+				position: absolute;
+				top: 0;
+				bottom: 0;
+				color: darken(@main-line, 20%);
+
+				&:hover {
+					color: @main-text;
+				}
+			}
+
+			.next { right: 0; border-left-width: 1px; }
+			.prev { left: 0; border-right-width: 1px; }
+
+		}
+
+		.category-list {
+			border-bottom: 1px solid @main-line;
+			list-style-type: none;
+			padding: 1em 0;
+			margin: 0;
+
+			li {
+
+				a {
+					padding: .1em 1em .3em 1em;
+					display: block;
+					text-decoration: none;
+					color: @main-text;
+
+					.category-bubble {
+						display: inline-block;
+						width: 1.2em;
+						height: 1.2em;
+						border-radius: 100%;
+						position: relative;
+						top: .2em;
+						margin-right: .2em;
+					}
+
+					small {
+						color: darken(@main-vague, 10%);
+					}
+
+					&:hover {
+						background-color: @main-line;
+					}
+				}
+
+				&.active a { font-weight: 900; }
+			}
+		}
+
+		.archive-list {
+			border-bottom: 1px solid @main-line;
+			list-style-type: none;
+			padding: 1em 0;
+			margin: 0;
+			
+			a {
+				padding: .1em 1em .1em 1em;
+				display: block;
+				text-decoration: none;
+				color: @main-text;
+
+				&:hover {
+					background-color: @main-line;
+				}	
+			}
+		}
+	}
+}
+
+#single.content {
+	padding: 0;
+
+	.article {
+		padding: 0;
+		display: table;
+		table-layout: fixed;
+		width: 100%;
+
+		.article-wrapper {
+			width: 67%;
+			display: table-cell;
+			padding: 1em 2em 5em 15%;
+
+			.title, .meta-top {
+				position: relative;
+				top: 1rem;
+			}
+
+			.entry {
+				margin-top: 2rem;
+			}
+		}
+
+		.article-side {
+			width: 33%;
+			display: table-cell;
+			border-left: 1px solid @main-line;
+
+			.author {
+				position: relative;
+				padding: 1rem 1rem 1rem 4rem;
+				min-height: 3em;
+				margin-bottom: 1em;
+				border-bottom: 1px solid @main-line;
+
+				.avatar {
+					position: absolute;
+					top: .7em;
+					left: 1em;
+					width: 2.7rem;
+					height: 2.7rem;
+					display: inline-block;
+					border-radius: 100%;
+					background-size: cover;
+					background-position: center center;
+					border: 2px solid @header-line;
+				}
+
+				.author-link {
+					position: relative;
+					top: -.2em;
+					font-size: 1.05rem;
+					line-height: .8em;
+					font-weight: bold;
+					color: lighten(@main-text, 10%);
+					text-decoration: none;
+				}
+
+				.author-description {
+					position: relative;
+					top: -.3em;
+					font-size: .8rem;
+					color: lighten(@main-text, 20%);
+				}
+			}
+
+			.categories {
+				padding: 0 1em;
+				margin-bottom: 1em;
+			}
+
+			.comments-link {
+				float: left;
+				padding: 0 1em;
+			}
+		}
+	}
+
+	#post-navigation {
+		border-bottom: 1px solid @main-line;
+		margin-bottom: 2rem;
+		.clearfix();
+
+		.prev, .next {
+			width: 50%;
+			height: 3.5em;
+			position: relative;
+
+			i {
+				font-family: 'Material Icons';
+				font-size: 2em;
+				line-height: 3.5rem;
+				font-style: normal;
+				font-weight: bold;
+				position: absolute;
+				top: 0;
+				bottom: 0;
+				padding: 0 .5em;
+				border-radius: 0;				
+				color: @black-40;
+				pointer-events: none;
+			}
+
+			a {
+				display: block;
+				line-height: 3.5rem;
+				color: @black-40;
+				text-decoration: none;
+				text-transform: uppercase;
+				font-weight: 300;
+				.text-truncate();
+			}
+
+			&:hover {
+				background-color: lighten(@main-line, 10%);
+
+				i, a { color: @main-text; }
+			}
+		}
+
+		.next {
+			float: left;
+			border-right: 1px solid @main-line;
+
+			i {
+				left: 0;
+				border-right: 1px solid @main-line;
+			}
+
+			a {
+				padding-left: 5rem;
+			}
+		}
+
+		.prev {
+			float: right;
+			border-left: 1px solid @main-line;
+			position: relative;
+			left: -1px;
+
+			i {
+				right: 0;
+				border-left: 1px solid @main-line;
+			}
+
+			a { 
+				text-align: right;
+				padding-right: 5rem;
+			}
+		}
+	}
+}

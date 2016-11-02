@@ -1,0 +1,55 @@
+.wrapper { 
+	position: relative;
+
+	#main {
+		position: relative;
+		left: 0;
+		opacity: 1;
+		.transition(left .25s ~"," opacity .25s);
+		
+		&.vague {
+			opacity: .3;
+			pointer-events: none;
+		}
+	}
+
+	#sidebar {
+		position: absolute;
+		right: 0;
+		top: 0;
+		min-height: ~"calc(100vh - @{header-height})";
+		height: 100%;
+		width: 0;
+		box-shadow: inset 4px 0px 10px 0px darken(@desi-back, 19%);
+		overflow: hidden;
+		background-color: darken(@desi-back, 16%);
+		// #gradient > .radial(@desi-back, darken(@desi-back, 14%));
+		.transition(width .25s);
+	
+		.secondary-nav {
+			position: absolute;
+			display: none;
+			width: @side-width;
+		}
+	}
+
+	&.with-sidebar {
+
+		#main {
+			left: -@side-width;
+		}
+
+		#sidebar {
+			width: @side-width;
+		}
+	}
+}
+
+body[data-where='docs'] .with-sidebar #main { left: 0; }
+body[data-where='tools'] .with-sidebar #main { left: 0; }
+
+body[data-where='docs'] .with-sidebar #sidebar .docs { 
+	display: block; 
+}
+
+body[data-where='tools'] .with-sidebar #sidebar .tools { display: block; }
