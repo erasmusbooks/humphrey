@@ -30,8 +30,8 @@
 
 		<link rel="shortcut icon" type="image/png" href="<?php echo get_template_directory_uri(); ?>/images/ic_accessibility_black_24dp_1x.png">
 
-		<script src="<?php echo get_template_directory_uri(); ?>/scripts/vendors.js"></script>
 		<script src="<?php echo get_template_directory_uri(); ?>/scripts/client.js"></script>
+		<script src="<?php echo get_template_directory_uri(); ?>/scripts/vendors.js"></script>
 		<script src="<?php echo get_template_directory_uri(); ?>/scripts/universal.js"></script>
 					
 	</head>

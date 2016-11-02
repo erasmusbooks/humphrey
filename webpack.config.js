@@ -11,8 +11,8 @@ module.exports = {
 		universal: './scripts/src/universal.js',
 		dashboard: './scripts/src/dashboard.js',
 		news: './scripts/src/news.js',
-		calendar: ['react', 'react-dom', 'fullcalendar', './scripts/src/calendar.js'],
-		vendors: ['jquery', 'underscore', 'moment', 'isbn-utils']
+		calendar: './scripts/src/calendar.js',
+		vendors: ['jquery', 'underscore', 'moment', 'isbn-utils', 'react', 'react-dom', 'react-cookie', 'fullcalendar']
 	},
 	module: {
 		loaders: [
