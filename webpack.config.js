@@ -23,7 +23,7 @@ module.exports = {
 				query: {
 					presets: ['react', 'es2015', 'stage-0'],
 					plugins: ['react-html-attrs', 'transform-decorators-legacy', 'transform-class-properties'],
-					}
+				}
 			},
 			{
         test: /\.less$/,
@@ -38,10 +38,10 @@ module.exports = {
 	plugins: debug ? [
 			new webpack.optimize.CommonsChunkPlugin('client.js') 
 		] : [
-			new webpack.optimize.CommonsChunkPlugin('client.js'),
 			new webpack.DefinePlugin({ 'process.env':{ 'NODE_ENV': JSON.stringify('production') } }),
 			new webpack.optimize.DedupePlugin(),
 			new webpack.optimize.OccurenceOrderPlugin(),
 			new webpack.optimize.UglifyJsPlugin({ mangle: false, sourcemap: false }),
+			new webpack.optimize.CommonsChunkPlugin('client.js', Infinity),
 	],
 };
