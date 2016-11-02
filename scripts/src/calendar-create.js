@@ -1,11 +1,14 @@
-var React = require('react'),
-	moment = require('moment'),
-	$ = require('jquery'),
-	fullCal = require('fullcalendar');
+import React from 'react';
+import moment from 'moment';
+import $ from 'jquery';
+import fullCalendar from 'fullcalendar';
 
-module.exports = React.createClass({
-	getInitialState: function () {
-		return {
+export default class CalendarCreate extends React.Component {
+	
+	constructor(props) {
+		super(props);
+		
+		this.state = {
 			title: '',
 			start: moment(),
 			end: '',
@@ -15,10 +18,18 @@ module.exports = React.createClass({
 			recursion: 'once',
 			note: '',
 			loading: false
-		}
-	},
-	componentDidMount: function () {
-		var self = this;
+		};
+
+		this.setDate = this.setDate.bind(this);
+		this.handleChange = this.handleChange.bind(this);
+		this.handleCheckbox = this.handleCheckbox.bind(this);
+		this.handleTime = this.handleTime.bind(this);
+		this.handleEndTime = this.handleEndTime.bind(this);
+		this.handleSubmit = this.handleSubmit.bind(this);
+	}
+	componentDidMount() {
+
+		let that = this;
 
 		$('.calendar-popupcal').fullCalendar({
 			firstDay: 1,
@@ -33,52 +44,53 @@ module.exports = React.createClass({
 				next: '\u203A'
 			},
 			dayNamesShort: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-			dayRender: function (date, cell) {
+			dayRender(date, cell) {
 				$(cell).html('<span>' + moment(date).format('D') + '</span>');
-				if (self.state.multiday) {
-					if (moment(date).isSame(self.state.start, 'day')) $(cell).addClass('selected start');
-					if (moment(date).isSame(self.state.end, 'day')) $(cell).addClass('selected end');
-					if (moment(date).isBetween(self.state.start, self.state.end)) $(cell).addClass('selected');
+				if (that.state.multiday) {
+					if (moment(date).isSame(that.state.start, 'day')) $(cell).addClass('selected start');
+					if (moment(date).isSame(that.state.end, 'day')) $(cell).addClass('selected end');
+					if (moment(date).isBetween(that.state.start, that.state.end)) $(cell).addClass('selected');
 				} else {
-					if (moment(self.state.start).isSame(date, 'day')) self.setDate(date);
+					if (moment(that.state.start).isSame(date, 'day')) that.setDate(date);
 				}
 			},
-			dayClick: function (date, jsEvent, view) {
-				self.setDate(date);
+			dayClick(date, jsEvent, view) {
+				that.setDate(date);
 			}
 		});
-	},
-	setDate: function (date) {
-		var self = this;
+	}
+
+	setDate(date) {
+
 		$('.fc-day').removeClass('selected start end');
 
-		if (self.state.multiday) {
-			if (moment(date).isBefore(self.state.start)) {
-				if (self.state.end != '') {
-					self.setState({ start: moment(date) }, function () {
-						drawRange(self.state.start, self.state.end);
+		if (this.state.multiday) {
+			if (moment(date).isBefore(this.state.start)) {
+				if (this.state.end != '') {
+					this.setState({ start: moment(date) }, () => {
+						drawRange(this.state.start, this.state.end);
 					});
 				} else {
-					self.setState({ start: moment(date), end: self.state.start }, function () {
-						drawRange(self.state.start, self.state.end);
+					this.setState({ start: moment(date), end: this.state.start }, () => {
+						drawRange(this.state.start, this.state.end);
 					});
 				}
-			} else if (moment(date).isBetween(self.state.start, self.state.end)) {
-				self.setState({ start: moment(date) }, function () {
-					drawRange(self.state.start, self.state.end);
+			} else if (moment(date).isBetween(this.state.start, this.state.end)) {
+				this.setState({ start: moment(date) }, () => {
+					drawRange(this.state.start, this.state.end);
 				});
-			} else if (moment(date).isAfter(self.state.start)) {
-				self.setState({ end: moment(date) }, function () {
-					drawRange(self.state.start, self.state.end);
+			} else if (moment(date).isAfter(this.state.start)) {
+				this.setState({ end: moment(date) }, () => {
+					drawRange(this.state.start, this.state.end);
 				});
 			}
 		} else {					
 			$('.fc-day[data-date=' + moment(date).format('YYYY-MM-DD') + ']').addClass('selected start end');
-			self.setState({ start: moment(date), end: '' });
+			this.setState({ start: moment(date), end: '' });
 		}
 
 		function drawRange (start, end) {
-			var num = end.diff(start, 'days');
+			let num = end.diff(start, 'days');
 			for (var i = 0; i <= num; i++) {
 				$('.fc-day[data-date=' + moment(start).add(i, 'days').format('YYYY-MM-DD') + ']').addClass('selected');
 
@@ -86,28 +98,31 @@ module.exports = React.createClass({
 				if (i == num) $('.fc-day[data-date=' + moment(start).add(i, 'days').format('YYYY-MM-DD') + ']').addClass('end');
 			}
 		}
-	},
-	handleChange: function (e) {
-		var obj = {};
+	}
+
+	handleChange(e) {
+		let obj = {};
 		obj[e.target.name] = e.target.value;
 		this.setState(obj);
-	},
-	handleCheckbox: function (e) {
-		var self = this, obj = {};
+	}
+
+	handleCheckbox(e) {
+		let obj = {};
 		if ($(e.target).hasClass('active')) {
 			obj[e.target.dataset.arg] = false;
 		} else { obj[e.target.dataset.arg] = true; 	}
 
 		if (obj.multiday == true || this.state.multiday == true) obj['allday'] = true;
 		if (obj.multiday == false || this.state.multiday == false) obj['end'] = '';
-		if (obj.allday == true) obj['start'] = moment(self.state.start).set({'hour': 0, 'minute': 0});
+		if (obj.allday == true) obj['start'] = moment(this.state.start).set({'hour': 0, 'minute': 0});
 
-		this.setState(obj, function () {
-			if (obj.multiday == false) self.setDate(self.state.start);
+		this.setState(obj, () => {
+			if (obj.multiday == false) this.setDate(this.state.start);
 		});
-	},
-	handleTime: function (e) {
-		var start = moment(this.state.start),
+	}
+
+	handleTime(e) {
+		let start = moment(this.state.start),
 			end = '',
 			time = Number(e.target.value);
 
@@ -121,24 +136,25 @@ module.exports = React.createClass({
 		if (moment(end).isBefore(start)) return alert('Invalid time');
 
 		this.setState({ start: start, end: end });
-	},
-	handleEndTime: function (e) {
-		var start = this.state.start;
+	}
+
+	handleEndTime(e) {
+		let start = this.state.start;
 
 		if (this.state.end == '' && this.state.allday == false) {
 			this.setState({ end: moment(start).add(1, 'hours') });
 		} else {
 			this.setState({ end: '' });
 		}
-	},
-	handleSubmit: function (e) {
-		var self = this;
+	}
+
+	handleSubmit(e) {
 		e.preventDefault();
 
-		if (self.state.title == '') return alert('Please enter a title');
-		if (self.state.category == '') return alert('Please supply a category');
+		if (this.state.title == '') return alert('Please enter a title');
+		if (this.state.category == '') return alert('Please supply a category');
 
-		this.setState({ loading: true }, function () {
+		this.setState({ loading: true }, () => {
 			var ev = this.state;
 			ev.start = moment(ev.start).format('X');
 			if (ev.end) ev.end = moment(ev.end).format('X');		
@@ -150,39 +166,39 @@ module.exports = React.createClass({
 				url: document.baseURI + '/events',
 				data: ev,
 				dataType: 'json'
-			}).done(function (response) {
-				self.setState({ loading: false }, function () {
-					self.props.cancelPopup();
-					self.props.newEvent(response);
+			}).done(response => {
+				this.setState({ loading: false }, () => {
+					this.props.cancelPopup();
+					this.props.newEvent(response);
 				});
 			});
 		})
-	},
-	render: function () {
-		var self = this,
-			ev = this.state,
+	}
+
+	render() {
+		let ev = this.state,
 			hours = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24'],
 			minutes = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'];
 
-		var startHourList = hours.map(function (hour) {
+		let startHourList = hours.map(hour => {
 			return ( <option value={hour} key={'sh-' + hour}>{hour}</option> )
 		});
 
-		var startMinuteList = minutes.map(function (minute) {
+		let startMinuteList = minutes.map(minute => {
 			return ( <option value={minute} key={'sm-' + minute}>{minute}</option> )
 		});	
 
-		var endHourList = hours.map(function (hour) {
+		let endHourList = hours.map(hour => {
 			if (hour >= moment(ev.start).format('HH')) {
 				return ( <option value={hour} key={'eh-' + hour}>{hour}</option> )
 			}			
 		});
 
-		var endMinuteList = minutes.map(function (minute) {
+		let endMinuteList = minutes.map(minute => {
 			return ( <option value={minute} key={'em-' + minute}>{minute}</option> )
 		});
 
-		var catList = this.props.categories.map(function (cat) {
+		let catList = this.props.categories.map(cat => {
 			return ( <option value={cat.id} key={cat.id}>{cat.name}</option> )
 		});
 
@@ -263,4 +279,4 @@ module.exports = React.createClass({
 			</div>
 		)
 	}
-}); 
+} 

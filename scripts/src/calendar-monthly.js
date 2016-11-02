@@ -1,20 +1,23 @@
-var React = require('react'),
-	$ = require('jquery'),
-	_ = require('underscore'),
-	moment = require('moment');
+import React from 'react';
+import $ from 'jquery';
+import _ from 'underscore';
+import moment from 'moment';
 
-var CalendarMonth = require('./cal-month.react.jsx');
+import CalendarMonth from './calendar-month';
 
-module.exports = React.createClass({
-	getInitialState: function () {
-		return { 
+export default class CalendarMonthly extends React.Component {
+
+	constructor(props) {
+		super(props);
+		
+		this.state = { 
 			dates: [],
 			events: [] 
 		}
-	},
-	componentWillReceiveProps: function (nextProps) {
-		var self = this,
-			dates = this.state.dates,
+	}
+
+	componentWillReceiveProps(nextProps) {
+		let dates = this.state.dates,
 			oldDate = this.props.date,
 			newDate = nextProps.date;
 
@@ -29,17 +32,17 @@ module.exports = React.createClass({
 		}
 
 		dates.push(newDate);
-		this.setState({ dates: dates }, function () {
+		this.setState({ dates: dates }, () => {
 
 			if (moment(oldDate).isSame(newDate, 'month')) {
-				var newDates = _.reject(self.state.dates, function (date) {
+				let newDates = _.reject(this.state.dates, date => {
 					return date.position == 0;
 				});
-				self.setState({ dates: newDates });
+				this.setState({ dates: newDates });
 				return;
 			}
 
-			setTimeout(function () {
+			setTimeout(() => {
 				if (moment(newDate).isBefore(oldDate)) {
 					$('.calendar-month#'+ moment(oldDate).format("YYYY-MM")).addClass('old-right');
 					$('.calendar-month#'+ moment(newDate).format("YYYY-MM")).removeClass('new-left old-left new-right old-right');
@@ -47,31 +50,31 @@ module.exports = React.createClass({
 				if (moment(newDate).isAfter(oldDate)) {
 					$('.calendar-month#'+ moment(oldDate).format("YYYY-MM")).addClass('old-left');
 					$('.calendar-month#'+ moment(newDate).format("YYYY-MM")).removeClass('new-left old-left new-right old-right');
-
 				}
 			}, 1);
 
-			setTimeout(function () {
-				var newDates = _.reject(self.state.dates, function (date) {
+			setTimeout(() => {
+				let newDates = _.reject(this.state.dates, date => {
 					return moment(oldDate).isSame(date, 'month')
 				});
-				self.setState({ dates: newDates });
-			}, 400)
+				this.setState({ dates: newDates });
+			}, 400);
 		});
-	},
-	render: function () {	
-		var self = this,
-			monthList = self.state.dates.map(function (date) {
-				var monthNum = moment(date).format('YYYY-MM');
-				return (
-					<CalendarMonth 
-						date={date} 
-						events={self.props.events}
-						key={monthNum}
-						setPopup={self.props.setPopup}
-						setDetail={self.props.setDetail} />
-				)
-			});
+	}
+	
+	render() {	
+		let	monthList = this.state.dates.map((date, index) => {
+			let monthNum = moment(date).format('YYYY-MM');
+			
+			return (
+				<CalendarMonth 
+					date={date} 
+					events={this.props.events}
+					key={monthNum}
+					setPopup={this.props.setPopup}
+					setDetail={this.props.setDetail} />
+			)
+		});
 
 		return (
 			<div id='calendar-monthly'>
@@ -82,4 +85,4 @@ module.exports = React.createClass({
 			</div>
 		)
 	}
-});
+}

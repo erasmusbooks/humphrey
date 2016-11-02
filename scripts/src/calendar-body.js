@@ -1,12 +1,13 @@
-var React = require('react');
+import React from 'react';
 
-var CalendarControls = require('./cal-controls.react.jsx'),
-	CalendarMonthly = require('./cal-monthly.react.jsx'),
-	CalendarStretch = require('./cal-stretch.react.jsx');
+import CalendarControls from './calendar-controls';
+import CalendarMonthly from './calendar-monthly';
+import CalendarStretch from './calendar-stretch';
 	
-module.exports = React.createClass({
-	render: function () {
-		var CalendarPeriod;
+export default class CalendarBody extends React.Component {
+
+	render() {
+		let CalendarPeriod;
 		if (this.props.view == 'weekly') {
 
 			CalendarPeriod = (
@@ -45,4 +46,4 @@ module.exports = React.createClass({
 			</section>
 		)
 	}
-});
+}

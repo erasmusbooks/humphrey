@@ -1,33 +1,46 @@
-var React = require('react'),
-	$ = require('jquery'),
-	_ = require('underscore'),
-	moment = require('moment');
+import React from 'react';
+import $ from 'jquery';
+import _ from 'underscore';
+import moment from 'moment';
 
-module.exports = React.createClass({
-	clickDay: function (e) {
+export default class CalendarDay extends React.Component {
+
+	constructor(props) {
+		super(props);
+		
+		this.clickDay = this.clickDay.bind(this);
+		this.clickEvent = this.clickEvent.bind(this);
+		this.mouseEnterEvent = this.mouseEnterEvent.bind(this);
+		this.mouseLeaveEvent = this.mouseLeaveEvent.bind(this);
+	}
+
+	clickDay(e) {
 		$('.day, .event').removeClass('active');
 		$('.day[data-date=' + e.target.dataset.date + '], .event[data-date=' + e.target.dataset.date + ']').addClass('active');
-	},
-	clickEvent: function (e) {
+	}
+
+	clickEvent(e) {
 		$('.day, .event').removeClass('active');
 		$('.day[data-date=' + e.target.dataset.date + '], .event[data-date=' + e.target.dataset.date + ']').addClass('active');
 		this.props.setPopup('detail');
 		this.props.setDetail(e.target.dataset.eventid);
-	},
-	mouseEnterEvent: function (e) {
+	}
+
+	mouseEnterEvent(e) {
 		$('.event.event-' + e.target.dataset.eventid).addClass('hover');
-	},
-	mouseLeaveEvent: function (e) {
+	}
+
+	mouseLeaveEvent(e) {
 		$('.event').removeClass('hover');
-	},
-	render: function () {
-		var self = this, 
-			now = moment(),
-			dataset = self.props.dataset,
+	}
+
+	render() {
+		let now = moment(),
+			dataset = this.props.dataset,
 			dayNumber;
 
 		if (dataset.weekday == 'wkd') {
-			var num = Number(moment(dataset.start).format('D'))
+			let num = Number(moment(dataset.start).format('D'))
 			dayNumber = (
 				<span className='sat-sun'>
 					<span className='saturday'>{num}</span>
@@ -40,11 +53,11 @@ module.exports = React.createClass({
 		}
 
 		dataset.alldays = _.sortBy(dataset.alldays, 'pos');
-		var alldays = dataset.alldays.map(function (ev, index) {
-			var style = { backgroundColor: ev.category.color }
+		let alldays = dataset.alldays.map((ev, index) => {
+			let style = { backgroundColor: ev.category.color }
 			style.top = (ev.pos * 25);
 
-			var classes = 'event event-' + ev._id;
+			let classes = 'event event-' + ev._id;
 			if (moment(ev.start).isBefore(dataset.start)) classes = classes + ' yesterday';
 			if (ev.end && moment(ev.end).isAfter(dataset.end)) classes = classes + ' tomorrow';
 
@@ -53,9 +66,9 @@ module.exports = React.createClass({
 					style={style}
 					key={ev._id + moment(ev.start).format()}
 					title={ev.title}
-					onMouseEnter={self.mouseEnterEvent}
-					onMouseLeave={self.mouseLeaveEvent}
-					onClick={self.clickEvent}
+					onMouseEnter={this.mouseEnterEvent}
+					onMouseLeave={this.mouseLeaveEvent}
+					onClick={this.clickEvent}
 					data-eventid={ev._id}
 					data-date={moment(dataset.start).format('YYYY-MM-DD')}>
 				 
@@ -63,15 +76,17 @@ module.exports = React.createClass({
 				</li>
 			)
 		});
-		var highestAllday = _.max(dataset.alldays, function (ev) { return ev.pos; });
-		var alldaysHeight = { height: ((Number(highestAllday.pos) + 1 ) * 25) + 5 }
 
-		var singles = dataset.singles.map(function (ev, index) {
+		let highestAllday = _.max(dataset.alldays, ev => { return ev.pos });
+
+		let alldaysHeight = { height: (((Number(highestAllday.pos) || 0) + 1 ) * 25) + 5 }
+
+		let singles = dataset.singles.map((ev, index) => {
 						
-			var time = <time className='event-time' dateTime={ev.start}>{moment(ev.start).format('HH:mm')}</time>;
+			let time = <time className='event-time' dateTime={ev.start}>{moment(ev.start).format('HH:mm')}</time>;
 			if (ev.end) time = <time className='event-time' dateTime={ev.start}>{moment(ev.start).format('HH:mm')} &ndash; {moment(ev.end).format('HH:mm')}</time>
 
-			var weekendDay = '';
+			let weekendDay = '';
 			if (dataset.weekday == 'wkd') {
 				weekendDay = <span className='event-weekend'>{moment(ev.start).format('ddd')}</span>;
 			}
@@ -80,7 +95,7 @@ module.exports = React.createClass({
 				<li className='event' 
 					key={ev._id + moment(ev.start).format()}
 					title={ev.title}
-					onClick={self.clickEvent}
+					onClick={this.clickEvent}
 					data-eventid={ev._id}
 					data-date={moment(dataset.start).format('YYYY-MM-DD')}>
 					<i style={{ backgroundColor: ev.category.color }}></i>
@@ -92,7 +107,7 @@ module.exports = React.createClass({
 
 		return (
 			<li className={moment(now).isBetween(dataset.start, dataset.end) ? 'today active day ' + dataset.weekday : 'day ' + dataset.weekday }
-				onClick={self.clickDay}
+				onClick={this.clickDay}
 				data-date={moment(dataset.start).format('YYYY-MM-DD')}>
 				<div className='day-number'>
 					{dayNumber}
@@ -106,4 +121,4 @@ module.exports = React.createClass({
 			</li>
 		)
 	}
-});
+}

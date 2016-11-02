@@ -1,28 +1,39 @@
-var React = require('react'),
-	$ = require('jquery'),
-	moment = require('moment');
+import React from 'react';
+import $ from 'jquery';
+import moment from 'moment';
 
-module.exports = React.createClass({
-	setDate: function (e) {
+export default class CalendarControls extends React.Component {
+	constructor(props) {
+		super(props);
+		
+		this.setDate = this.setDate.bind(this);
+		this.setPopup = this.setPopup.bind(this);
+		this.handleLogout = this.handleLogout.bind(this);
+	}
+
+	setDate(e) {
 		e.preventDefault();
 		this.props.setDate(moment(e.target.dataset.date, 'YYYY-MM-DD'));
-	},
-	setPopup: function (e) {
+	}
+
+	setPopup(e) {
 		e.preventDefault();
 		this.props.setPopup(e.target.dataset.arg);
-	},
-	handleLogout: function (e) {
+	}
+
+	handleLogout(e) {
 		e.preventDefault();
 		this.props.handleAuth('logout');
-	},
-	render: function () {
-		var prev,	next,	now = moment().format('YYYY-MM-DD'),
+	}
+
+	render() {
+		let prev,	next,	now = moment().format('YYYY-MM-DD'),
 			loginButton, createButton, settingsButton,
 			periodTitle, periodNum, periodNav,
 			styles;
 
 		if (this.props.view == 'weekly') {
-			var startWeek = moment(this.props.date).startOf('isoWeek'),
+			let startWeek = moment(this.props.date).startOf('isoWeek'),
 				next = moment(this.props.date).add(7, 'days').format('YYYY-MM-DD'),
 				prev = moment(this.props.date).subtract(7, 'days').format('YYYY-MM-DD');
 
@@ -48,7 +59,7 @@ module.exports = React.createClass({
 
 		} else if (this.props.view == 'monthly') {
 			
-			var next = moment(this.props.date).add(1, 'months').format('YYYY-MM-DD'),
+			let next = moment(this.props.date).add(1, 'months').format('YYYY-MM-DD'),
 				prev = moment(this.props.date).subtract(1, 'months').format('YYYY-MM-DD');
 
 			periodTitle = <h1>{moment(this.props.date).format('MMMM YYYY')}</h1>
@@ -84,4 +95,4 @@ module.exports = React.createClass({
 			</header>
 		)
 	}
-});
+}

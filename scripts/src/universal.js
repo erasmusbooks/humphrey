@@ -1,37 +1,39 @@
-var $ = require('jquery'),
-	isbn = require('isbn-utils');
+import $ from 'jquery';
+import isbn from 'isbn-utils';
 
-$(document).ready(function () {
-	var where = $('body').data().where;
-	var sidebar = $('body .wrapper').hasClass('with-sidebar') ? where : '';
-	var menuItem;
+require('../../styles/main.less');
+
+$(document).ready(() => {
+	let where = $('body').data().where,
+		sidebar = $('body .wrapper').hasClass('with-sidebar') ? where : '',
+		menuItem;
 
 	// SEARCH
 
-	$('#header-search label').click(function () {
+	$('#header-search label').click(() => {
 		$('#masthead').addClass('searching');
 	});
 
-	$('#header-search i').click(function () {
+	$('#header-search i').click(() => {
 		$('#masthead').removeClass('searching');
 		$('#header-search input').val('');
 		$('#header-search #search-results').html('');
 	});
 
-	$('#header-search input').focusout(function () {
-		var s = $('#header-search input').val();
+	$('#header-search input').focusout(() => {
+		let s = $('#header-search input').val();
 		if (!s) {
 			$('#masthead').removeClass('searching');
 			$('#header-search #search-results').html('');
 		}
 	});
 
-	$('#header-search').submit(function (e) {
+	$('#header-search').submit(e => {
 		e.preventDefault();
 	});
 
-	var searchTimer;
-	$('#header-search input#s').keypress(function (e) {
+	let searchTimer;
+	$('#header-search input#s').keypress(e => {
 
 		if (e.which !== 0) {
 
@@ -41,34 +43,33 @@ $(document).ready(function () {
 
 				if (searchTimer) clearTimeout(searchTimer);
 
-				searchTimer = setTimeout(function () {
+				searchTimer = setTimeout(() => {
 					$.ajax({
 						method: 'GET',
 						url: $('#header-search').attr('action') + '?s=' + $('#header-search input#s').val(),
 						dataType: 'json'
-					}).done(function (response) {
+					}).done(response => {
 						$('#header-search #search-results').html('');
 						if (response.context == 'fail') {
 							$('#search-results').html('<li class="fail">No results found for <strong>' + $('#header-search input#s').val() + '</strong></li>');
 						} else if (response.context == 'success') {
-							response.results.forEach(function (result, index) {
-								console.log(result);
+							response.results.forEach((result, index) => {
 								if (!result.excerpt) result.excerpt = '<em>No content</em>';
 
-								var icon = '<span class="material-icons">weekend</span>'
+								let icon = '<span class="material-icons">weekend</span>'
 								if (result.post_type == 'page') {
 									icon = '<span class="material-icons">description</span>';
 								} else if (result.post_type == 'post') {
 									icon = '<span class="material-icons">feedback</span>'
 								}
 
-								var title = '<h3>' + result.title + '</h3>',
+								let title = '<h3>' + result.title + '</h3>',
 									time = '<time>' + result.time + '</time>',
 									excerpt = '<div class="excerpt">' + result.excerpt + '</div>';
 
-								var author = '<div class="author">' + result.avatar + '<div class="author-name">' + result.author.full_name + '</div><div class="author-description">' + result.author.description +'</div></div>';
+								let author = '<div class="author">' + result.avatar + '<div class="author-name">' + result.author.full_name + '</div><div class="author-description">' + result.author.description +'</div></div>';
 
-								var contents = '<li class="result"><a href="' + result.permalink + '" title="' + result.title + '">' + icon + title + time + excerpt + author + '</a></li>'
+								let contents = '<li class="result"><a href="' + result.permalink + '" title="' + result.title + '">' + icon + title + time + excerpt + author + '</a></li>'
 
 								$('#search-results').append(contents);
 							});
@@ -79,7 +80,6 @@ $(document).ready(function () {
 		}
 	});
 
-
 	// PRIMARY NAVIGATION
 
 	if ($('#primary-nav li').hasClass('current-page-ancestor')) menuItem = $('#primary-nav .current-page-ancestor');
@@ -88,11 +88,13 @@ $(document).ready(function () {
 
 	$('#primary-nav a, #header-user').click(function (e) {
 		var target;
+		
 		if ($(this).attr('id') == 'header-user') {
 			target = 'user';
 		} else {
 			target = $(this).text().toLowerCase();
 		}
+
 
 		if (target == 'docs' || target == 'tools' || target == 'user') {
 			e.preventDefault();
@@ -110,7 +112,7 @@ $(document).ready(function () {
 					$('#sidebar .' + sidebar).fadeOut(250);
 					$('#sidebar .' + sidebar).hide();
 
-					setTimeout(function () {
+					setTimeout(() => {
 						$('.wrapper').addClass('with-sidebar');
 						$('#sidebar .' + target).fadeIn(250);
 						sidebar = target;
@@ -139,7 +141,7 @@ $(document).ready(function () {
 
 					if (menuItem.text().toLowerCase() == 'docs' || menuItem.text().toLowerCase() == 'tools') {
 
-						setTimeout(function () {
+						setTimeout(() => {
 							$('.wrapper').addClass('with-sidebar');
 							$('#sidebar .' + menuItem.text().toLowerCase()).fadeIn(250);
 							sidebar = menuItem.text().toLowerCase();
@@ -157,17 +159,16 @@ $(document).ready(function () {
 	// SECONDARY NAVIGATION
 
 	$('.secondary-nav .page_item a').click(function (e) {
-		var oldURL = window.location.href;
-		var self = $(this);
+		let oldURL = window.location.href;
 
 		if ($(this).parent().hasClass('page_item_has_children')) {
 			e.preventDefault();
 			if($(this).next('.children').hasClass('open')) {
-				$(this).next('.children').slideUp('fast', function () {
+				$(this).next('.children').slideUp('fast', () => {
 					$(this).removeClass('open');
 				});
 			} else {
-				$(this).next('.children').slideDown('fast', function () {
+				$(this).next('.children').slideDown('fast', () => {
 					$(this).addClass('open');
 				});
 			}
@@ -177,7 +178,7 @@ $(document).ready(function () {
 			$('.loader').addClass('active');
 			$('#main').removeClass('vague');
 
-			$('#main .content').load(e.target.href + ' #stuff', function() {
+			$('#main .content').load(e.target.href + ' #stuff', () => {
 
 				if ($('.secondary-nav:visible').hasClass('docs')) {
 					document.title = e.target.firstChild.data + ' \u2039 Docs \u2013 Humphrey';
@@ -199,7 +200,7 @@ $(document).ready(function () {
 				}
 
 				history.pushState({ ajaxLoaded: true, oldURL: oldURL }, null, e.target.href);	
-				setTimeout(function () { $('.loader').removeClass('active');}, 600);
+				setTimeout(() => { $('.loader').removeClass('active');}, 600);
 			});
 
 			$('.secondary-nav li').removeClass('current_page_item current_page_ancestor current_page_parent');
@@ -218,11 +219,11 @@ $(document).ready(function () {
 
 // PRICING HELP
 
-$(document).on('change', '#base-currency', function () { getRates($('#base-currency').val()) });
+$(document).on('change', '#base-currency', () => { getRates($('#base-currency').val()) });
 
-$(document).on('keyup', '#base-amount', function (event) { 
+$(document).on('keyup', '#base-amount', e => { 
 	$('.input-error').html('');
-	var i = $('#base-amount').val();
+	let i = $('#base-amount').val();
 
 	if (isNaN(i))  {
 		$('#base-amount').css({'color': 'red', 'box-shadow': 'inset 0 1px 1px rgba(0,0,0,0.075),0 0 8px rgba(255,0,0,0.6)', 'border-color': 'red'});
@@ -236,22 +237,22 @@ $(document).on('keyup', '#base-amount', function (event) {
 
 });
 
-$(document).on('submit', '#pricing-help', function(e) {
+$(document).on('submit', '#pricing-help', e => {
 	e.preventDefault();
 });
 
-var curr;
+let curr;
 function getRates (base) {
-	$.getJSON('http://api.fixer.io/latest?base=' + base, function (data) {
+	$.getJSON('http://api.fixer.io/latest?base=' + base, data => {
 		$('#' + base + ' .rate').html(1);
-		$.each(data.rates, function (key, value) {
+		$.each(data.rates, (key, value) => {
 			$('#' + key + ' .rate').html(value);
 		});
 		curr = data.rates;
 
 		if ($('#base-amount').val()) calcRates($('#base-amount').val());
 
-		var updated = new Date(data.date);
+		let updated = new Date(data.date);
 		$('.last-updated').html('(last updated <strong>' + updated.toUTCString() + '</strong>)');
 	});
 }
@@ -267,8 +268,8 @@ function calcRates (amount) {
 	$('#' + $('#base-currency').val() + ' .fourty').html(Number(amount / .6).toFixed(2));
 	$('#' + $('#base-currency').val() + ' .fourty-margin').html("<small>+" + ((amount / .6) - amount).toFixed(2) + "</small>");
 
-	$.each(curr, function (key, value) {
-		var num = amount * value;
+	$.each(curr, (key, value) => {
+		let num = amount * value;
 		$('#' + key + ' .calc').html(num.toFixed(2));
 		$('#' + key + ' .twenty').html((num / .8).toFixed(2));
 		$('#' + key + ' .twenty-margin').html("<small>+" + ((num / .8) - num).toFixed(2) + "</small>");
@@ -318,8 +319,8 @@ function calcVAT (i) {
 	$("#twentyone .excl-margin").html("<small>-" + ((i * 1.21) - i).toFixed(2) + "</small>");
 }
 
-$(document).on('keyup', '#isbn-input', function (event) {
-	var payload = isbn.parse($('#isbn-input').val());
+$(document).on('keyup', '#isbn-input', e => {
+	let payload = isbn.parse($('#isbn-input').val());
 
 	if (payload) {
 		$('#isbn10').html(payload.codes.isbn10);

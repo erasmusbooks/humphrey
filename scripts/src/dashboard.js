@@ -1,8 +1,8 @@
-var $ = require('jquery'),
-	moment = require('moment');
+import $ from 'jquery';
+import moment from 'moment';
 
 function dashTime () {
-	var now = moment();
+	let now = moment();
 
 	document.getElementById('dash-weekday').innerHTML = now.format('dddd');
 	document.getElementById('dash-dayno').innerHTML = now.format('D');
@@ -11,13 +11,13 @@ function dashTime () {
 	document.getElementById('dash-time').innerHTML = now.format('HH:mm');
 }
 
-$(document).ready(function () {
+$(document).ready(() => {
 		dashTime();
-		setInterval(function () { dashTime() }, 60000);
+		setInterval(() => { dashTime() }, 60000);
 
 		$('.dash-loader').addClass('active');
 
-		var now = moment().format('E'), today = moment(), tomorrow = moment().add(1, 'days');
+		let now = moment().format('E'), today = moment(), tomorrow = moment().add(1, 'days');
 
 		if (now == 5) {
 			tomorrow = moment().add(3, 'days');
@@ -36,11 +36,11 @@ $(document).ready(function () {
 			method: 'GET',
 			url: document.baseURI + '/events/?start=' + today.startOf('day').format('X') + '&end=' + tomorrow.endOf('day').format('X'),
 			dataType: 'json'
-		}).done(function (data) {
+		}).done(data => {
 
 			if (Array.isArray(data)) {
 
-				data.forEach(function (ev) {
+				data.forEach(ev => {
 					ev['visible'] = true;
 					
 					if (ev.allday) {
@@ -52,7 +52,7 @@ $(document).ready(function () {
 					}
 				});
 
-				setTimeout(function () { 
+				setTimeout(() => { 
 					$('.dash-loader').remove();
 					$('.dash-events').addClass('active');
 				}, 300);
@@ -60,7 +60,7 @@ $(document).ready(function () {
 
 			} else {
 
-				setTimeout(function () { 
+				setTimeout(() => { 
 					$('.dash-loader').remove();
 					$('.dash-events').addClass('active');
 				}, 300);

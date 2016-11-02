@@ -1,20 +1,24 @@
-var React = require('react'),
-	$ = require('jquery'),
-	_ = require('underscore'),
-	moment = require('moment');
+import React from 'react';
+import $ from 'jquery';
+import _ from 'underscore';
+import moment from 'moment';
 
-var CalendarWeek = require('./cal-week.react.jsx');
+import CalendarWeek from './calendar-week';
 
-module.exports = React.createClass({
-	getInitialState: function () {
-		return { 
+export default class CalendarStretch extends React.Component {
+	
+	constructor(props) {
+		super(props);
+		
+		this.state = { 
 			dates: [],
 			events: [] 
 		}
-	},
-	componentWillReceiveProps: function (nextProps) {
-		var self = this,
-			dates = this.state.dates,
+	}
+
+	componentWillReceiveProps(nextProps) {
+
+		let dates = this.state.dates,
 			oldDate = this.props.date,
 			newDate = nextProps.date;
 
@@ -29,17 +33,17 @@ module.exports = React.createClass({
 		}
 
 		dates.push(newDate);
-		this.setState({ dates: dates }, function () {
+		this.setState({ dates }, () => {
 
 			if (moment(oldDate).isSame(newDate, 'isoWeek')) {
-				var newDates = _.reject(self.state.dates, function (date) {
+				var newDates = _.reject(this.state.dates, date => {
 					return date.position == 0;
 				});
-				self.setState({ dates: newDates });
+				this.setState({ dates: newDates });
 				return;
 			}
 
-			setTimeout(function () {
+			setTimeout(() => {
 				if (moment(newDate).isBefore(oldDate)) {
 					$('.week[data-week='+ moment(oldDate).startOf('isoweek').format("YYYY-ww") +']').addClass('old-right');
 					$('.week[data-week='+ moment(newDate).startOf('isoweek').format("YYYY-ww") +']').removeClass('new-left old-left new-right old-right');
@@ -51,27 +55,27 @@ module.exports = React.createClass({
 				}
 			}, 1);
 
-			setTimeout(function () {
-				var newDates = _.reject(self.state.dates, function (date) {
+			setTimeout(() => {
+				var newDates = _.reject(this.state.dates, date => {
 					return moment(oldDate).isSame(date, 'isoWeek')
 				});
-				self.setState({ dates: newDates });
-			}, 400)
+				this.setState({ dates: newDates });
+			}, 400);
 		});
-	},
-	render: function () {	
-		var self = this,
-			weekList = self.state.dates.map(function (date) {
-				var weekNum = moment(date).format('YYYY-ww');
-				return (
-					<CalendarWeek 
-						date={date} 
-						events={self.props.events}
-						key={weekNum}
-						setPopup={self.props.setPopup}
-						setDetail={self.props.setDetail} />
-				)
-			});
+	}
+
+	render() {	
+		let weekList = this.state.dates.map(date => {
+			let weekNum = moment(date).format('YYYY-ww');
+			return (
+				<CalendarWeek 
+					date={date} 
+					events={this.props.events}
+					key={weekNum}
+					setPopup={this.props.setPopup}
+					setDetail={this.props.setDetail} />
+			)
+		});
 
 		return (
 			<div id='calendar-weekly'>
@@ -82,4 +86,4 @@ module.exports = React.createClass({
 			</div>
 		)
 	}
-});
+}

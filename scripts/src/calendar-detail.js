@@ -1,12 +1,15 @@
-var React = require('react'),
-	moment = require('moment'),
-	$ = require('jquery');
+import React from 'react';
+import moment from 'moment';
+import $ from 'jquery';
 
-var CalendarUpdate = require('./cal-update.react.jsx');
+import CalendarUpdate from './calendar-update';
 
-module.exports = React.createClass({
-	getInitialState: function () {
-		return {
+export default class CalendarDetail extends React.Component {
+
+	constructor(props) {
+		super(props);
+		
+		this.state = {
 			view: 'detail',
 			loading: false,
 			detail: {
@@ -19,17 +22,20 @@ module.exports = React.createClass({
 				user: { name: { first: '', last: '' }, username: '', _id: '' },
 				recursion: 'once',
 				note: '',
-			},
+			}
 		}
-	},
-	componentDidMount: function () {
-		var self = this;
-		this.setState({ loading: true }, function () {
+
+		this.switchView = this.switchView.bind(this);
+	}
+
+	componentDidMount() {
+		this.setState({ loading: true }, () => {
+
 			$.ajax({
 				method: 'GET',
-				url: document.baseURI + '/events/?detail=' + self.props.detail,
+				url: document.baseURI + '/events/?detail=' + this.props.detail,
 				dataType: 'json'
-			}).done(function (ev) {
+			}).done(ev => {
 				
 				if (ev.allday) {
 					ev.start = moment(ev.start, 'X');
@@ -41,21 +47,19 @@ module.exports = React.createClass({
 					ev.start = moment(ev.start, 'X').subtract(2, 'hours');
 					if (ev.end) ev.end = moment(ev.end, 'X').subtract(2, 'hours');			
 				}
-				self.setState({ detail: ev, loading: false });
+				this.setState({ detail: ev, loading: false });
 			});
 
-			// socket.emit('events:detail', {_id: self.props.detail}, function (response) {
-			// 	self.setState({ detail: response, loading: false });
-			// });
 		})
-	},
-	switchView: function (e) {
+	}
+
+	switchView(e) {
 		e.preventDefault();
 		this.setState({ view: e.target.dataset.arg });
-	},
-	render: function () {
-		var self = this,
-			detail = this.state.detail,
+	}
+
+	render() {
+		let detail = this.state.detail,
 			currentView, updateButton,
 			dateString, durationString;
 
@@ -172,4 +176,4 @@ module.exports = React.createClass({
 			</div>
 		)
 	}
-});
+}

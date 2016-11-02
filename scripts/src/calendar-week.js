@@ -1,13 +1,13 @@
-var React = require('react'),
-	moment = require('moment'),
-	_ = require('underscore');
+import React from 'react';
+import moment from 'moment';
+import _ from 'underscore';
 
-var CalendarDay = require('./cal-day.react.jsx');
+import CalendarDay from './calendar-day';
 
-module.exports = React.createClass({
-	render: function () {
-		var self = this,
-			startWeek = moment(self.props.date).startOf('isoWeek'),
+export default class CalendarWeek extends React.Component {
+
+	render() {
+		let startWeek = moment(this.props.date).startOf('isoWeek'),
 			weekdays = [
 				{ name: 'mon', column: [] },
 				{ name: 'tue', column: [] },
@@ -25,15 +25,15 @@ module.exports = React.createClass({
 			if (moment(ev.start).isAfter(day.end)) return false;
 		}
 
-		var events = _.filter(self.props.events, function (ev) { return ev.visible; });
-		var events = _.sortBy(events, 'start');
-		var x;
+		let events = _.filter(this.props.events, ev => { return ev.visible });
+		events = _.sortBy(events, 'start');
+		let x;
 
 		for (x in events) {
 			if (events[x].allday == true) {
 				
 				events[x].pos = -1;
-				var day, i;
+				let day, i;
 
 				for (i in weekdays) {
 					day = {
@@ -49,7 +49,7 @@ module.exports = React.createClass({
 					} else {
 
 						if (happensToday(events[x], day)) {
-							var fill = false, j;
+							let fill = false, j;
 							for (j in weekdays[i].column) {
 								if (events[x].pos == -1 && weekdays[i].column[j] == 'empty') {
 									weekdays[i].column[j] = events[x]._id;
@@ -71,8 +71,8 @@ module.exports = React.createClass({
 		};
 		events = _.sortBy(events, 'pos');
 
-		var dataset = weekdays.map(function (weekday, index) {
-			var day = {
+		let dataset = weekdays.map((weekday, index) => {
+			let day = {
 				start: moment(startWeek).add(index, 'days').startOf('day').format(),
 				end: moment(startWeek).add(index, 'days').endOf('day').format(),
 				weekday: weekday.name,
@@ -82,7 +82,7 @@ module.exports = React.createClass({
 
 			if (weekday.name == 'wkd') day.end = moment(startWeek).add(6, 'days').endOf('day').format();
 
-			events.forEach(function (ev) {
+			events.forEach(ev => {
 				if (moment(ev.start).isBetween(day.start, day.end)) {
 					if (ev.allday) day.alldays.push(ev); 
 					if (!ev.allday) day.singles.push(ev); 
@@ -100,13 +100,13 @@ module.exports = React.createClass({
 			return day;
 		});
 
-		var weekList = dataset.map(function (day, index) {
+		let weekList = dataset.map((day, index) => {
 			return (
 				<CalendarDay 
 					dataset={day}
 					key={moment(day.start).format()}
-					setPopup={self.props.setPopup} 
-					setDetail={self.props.setDetail} />
+					setPopup={this.props.setPopup} 
+					setDetail={this.props.setDetail} />
 			)
 		});
 
@@ -118,4 +118,4 @@ module.exports = React.createClass({
 			</ul>
 		)
 	}
-});
+}

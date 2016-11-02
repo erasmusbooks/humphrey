@@ -1,15 +1,15 @@
-var React = require('react'),
-	$ = require('jquery'),
-	moment = require('moment'),
-	fullCal = require('fullcalendar');
+import React from 'react';
+import $ from 'jquery';
+import moment from 'moment';
 
-var CalendarFilter = require('./cal-filter.react.jsx'),
-	CalendarMinical = require('./cal-minical.react.jsx'),
-	CalendarYearcal = require('./cal-yearcal.react.jsx');
+import CalendarFilter from './calendar-filter';
+import CalendarMinical from './calendar-minical';
+import CalendarYearcal from './calendar-yearcal';
 
-module.exports = React.createClass({
-	render: function () {
-		var miniView, viewSwitch;
+export default class CalendarSidebar extends React.Component {
+
+	render() {
+		let miniView, viewSwitch;
 
 		if (this.props.view == 'weekly') {
 			miniView = <CalendarMinical	
@@ -41,4 +41,4 @@ module.exports = React.createClass({
 			</aside>
 		)
 	}
-});
+}

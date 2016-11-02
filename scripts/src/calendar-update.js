@@ -1,11 +1,14 @@
-var React = require('react'),
-	moment = require('moment'),
-	$ = require('jquery'),
-	fullCal = require('fullcalendar');
+import React from 'react';
+import moment from 'moment';
+import $ from 'jquery';
+import fullCalendar from 'fullcalendar';
 
-module.exports = React.createClass({
-	getInitialState: function () {
-		return {
+export default class CalendarUpdate extends React.Component {
+
+	constructor(props) {
+		super(props);
+		
+		this.state = {
 			loading: false,
 			detail: {
 				title: '',
@@ -19,14 +22,24 @@ module.exports = React.createClass({
 				note: '',
 			},
 		}
-	},
-	componentDidMount: function () {
-		var self = this, detail = this.props.detail;
+
+		this.setDate = this.setDate.bind(this);
+		this.handleChange = this.handleChange.bind(this);
+		this.handleCheckbox = this.handleCheckbox.bind(this);
+		this.handleTime = this.handleTime.bind(this);
+		this.handleEndTime = this.handleEndTime.bind(this);
+		this.handleSubmit = this.handleSubmit.bind(this);
+		this.handleRemove = this.handleRemove.bind(this);
+	}
+
+	componentDidMount() {
+
+		let that = this, detail = this.props.detail;
 		detail.category = detail.category._id;
 		detail.start = moment(detail.start);
 		if (detail.end) detail.end = moment(detail.end);
 
-		this.setState({ detail: detail }, function () {
+		this.setState({ detail }, () => {
 
 			$('.calendar-popupcal').fullCalendar({
 				firstDay: 1,
@@ -41,43 +54,44 @@ module.exports = React.createClass({
 					next: '\u203A'
 				},
 				dayNamesShort: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-				dayRender: function (date, cell) {
+				dayRender(date, cell) {
 					$(cell).html('<span>' + moment(date).format('D') + '</span>');
-					if (self.state.detail.multiday) {
-						if (moment(date).isSame(self.state.detail.start, 'day')) $(cell).addClass('selected start');
-						if (moment(date).isSame(self.state.detail.end, 'day')) $(cell).addClass('selected end');
-						if (moment(date).isBetween(self.state.detail.start, self.state.detail.end)) $(cell).addClass('selected');
+					if (that.state.detail.multiday) {
+						if (moment(date).isSame(that.state.detail.start, 'day')) $(cell).addClass('selected start');
+						if (moment(date).isSame(that.state.detail.end, 'day')) $(cell).addClass('selected end');
+						if (moment(date).isBetween(that.state.detail.start, that.state.detail.end)) $(cell).addClass('selected');
 					} else {
-						if (moment(self.state.detail.start).isSame(date, 'day')) $(cell).addClass('selected start end');;
+						if (moment(that.state.detail.start).isSame(date, 'day')) $(cell).addClass('selected start end');
 					}
 				},
-				dayClick: function (date, jsEvent, view) {
-					self.setDate(date);
+				dayClick(date, jsEvent, view) {
+					that.setDate(date);
 				}
 			});
 		});
-	},
-	setDate: function (date) {
-		var self = this, detail = this.state.detail;
+	}
+
+	setDate(date) {
+		let detail = this.state.detail;
 		$('.fc-day').removeClass('selected start end');
 
-		if (self.state.detail.multiday) {
-			if (moment(date).isBefore(self.state.detail.start)) {
+		if (this.state.detail.multiday) {
+			if (moment(date).isBefore(this.state.detail.start)) {
 				detail.start = moment(date);
-			} else if (moment(date).isBetween(self.state.detail.start, self.state.detail.end)) {
+			} else if (moment(date).isBetween(this.state.detail.start, this.state.detail.end)) {
 				detail.start = moment(date);
-			} else if (moment(date).isAfter(self.state.detail.start)) {
+			} else if (moment(date).isAfter(this.state.detail.start)) {
 				detail.end = moment(date);
 			}
 
-			self.setState({ detail: detail }, function () {
-				drawRange(self.state.detail.start, self.state.detail.end);
+			this.setState({ detail: detail }, () => {
+				drawRange(this.state.detail.start, this.state.detail.end);
 			});
 		} else {					
 			$('.fc-day[data-date=' + moment(date).format('YYYY-MM-DD') + ']').addClass('selected start end');
 			detail.start = moment(date);
 			detail.end = '';
-			self.setState({ detail: detail });
+			this.setState({ detail: detail });
 		}
 
 		function drawRange (start, end) {
@@ -89,27 +103,30 @@ module.exports = React.createClass({
 				if (i == num) $('.fc-day[data-date=' + moment(start).add(i, 'days').format('YYYY-MM-DD') + ']').addClass('end');
 			}
 		}
-	},
-	handleChange: function (e) {
+	}
+
+	handleChange(e) {
 		var detail = this.state.detail;
 		detail[e.target.name] = e.target.value;
 		this.setState({ detail: detail });
-	},
-	handleCheckbox: function (e) {
-		var self = this, detail = this.state.detail;
+	}
+
+	handleCheckbox(e) {
+		let detail = this.state.detail;
 		if ($(e.target).hasClass('active')) {
 			detail[e.target.dataset.arg] = false;
 		} else { detail[e.target.dataset.arg] = true; 	}
 
 		if (detail.multiday == true || this.state.detail.multiday == true) detail['allday'] = true;
 		if (detail.multiday == false || this.state.detail.multiday == false) detail['end'] = '';
-		if (detail.allday == true) detail['start'] = moment(self.state.detail.start).set({'hour': 0, 'minute': 0});
+		if (detail.allday == true) detail['start'] = moment(this.state.detail.start).set({'hour': 0, 'minute': 0});
 
-		this.setState({ detail: detail }, function () {
-			if (detail.multiday == false) self.setDate(self.state.detail.start);
+		this.setState({ detail: detail }, () => {
+			if (detail.multiday == false) this.setDate(this.state.detail.start);
 		});
-	},
-	handleTime: function (e) {
+	}
+
+	handleTime(e) {
 		var detail = this.state.detail,
 			time = Number(e.target.value);
 
@@ -121,9 +138,10 @@ module.exports = React.createClass({
 		if (moment(detail.end).isBefore(detail.start)) return alert('Invalid time');
 
 		this.setState({ detail: detail });
-	},
-	handleEndTime: function (e) {
-		var detail = this.state.detail;
+	}
+
+	handleEndTime(e) {
+		let detail = this.state.detail;
 
 		if (detail.end == '' && detail.allday == false) {
 			detail.end = moment(detail.start).add(1, 'hours');
@@ -132,16 +150,17 @@ module.exports = React.createClass({
 		}
 
 		this.setState({ detail: detail });
-	},
-	handleSubmit: function (e) {
-		var self = this;
+	}
+
+	handleSubmit(e) {
 		e.preventDefault();
 
-		if (self.state.detail.title == '') return alert('Please enter a title');
-		if (self.state.detail.category == '') return alert('Please supply a category');
+		if (this.state.detail.title == '') return alert('Please enter a title');
+		if (this.state.detail.category == '') return alert('Please supply a category');
 
-		this.setState({ loading: true }, function () {
-			var ev = self.state.detail;
+		this.setState({ loading: true }, () => {
+
+			let ev = this.state.detail;
 
 			if (!ev.allday) {
 				ev.start = moment(ev.start).add(2, 'hours').format('X');
@@ -158,62 +177,47 @@ module.exports = React.createClass({
 				url: '/humphrey/events',
 				data: ev,
 				dataType: 'json'
-			}).done(function (response) {
-				self.setState({ loading: false }, function () {
-					self.props.cancelPopup();
-					self.props.updateEvent(response);
+			}).done(response => {
+				this.setState({ loading: false }, () => {
+					this.props.cancelPopup();
+					this.props.updateEvent(response);
 				});
 			});
+		});
+	}
 
-			// socket.emit('events:update', ev, function (response) {
-			// 	self.setState({ loading: false }, function () {
-			// 		self.props.cancelPopup();
-			// 		self.props.updateEvent(response);
-			// 	});
-			// });
-
-		})
-	},
-	handleRemove: function (e) {
-		var self = this;
+	handleRemove(e) {
 		e.preventDefault();
 
 		if (confirm('Are you sure?')) {
-			// socket.emit('events:remove', self.state.detail, function (response) {
-			// 	self.setState({ loading: false }, function () {
-			// 		self.props.cancelPopup();
-			// 		self.props.updateEvent(response);
-			// 	});
-			// });
+
 		}
-	},
-	render: function () {
-		var self = this,
-			ev = this.state.detail,
+	}
+
+	render() {
+		let ev = this.state.detail,
 			hours = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24'],
 			minutes = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'];
 
-		console.log(self.state.detail.start)
-
-		var startHourList = hours.map(function (hour) {
+		var startHourList = hours.map(hour => {
 			return ( <option value={hour} key={'sh-' + hour}>{hour}</option> )
 		});
 
-		var startMinuteList = minutes.map(function (minute) {
+		var startMinuteList = minutes.map(minute => {
 			return ( <option value={minute} key={'sm-' + minute}>{minute}</option> )
 		});	
 
-		var endHourList = hours.map(function (hour) {
+		var endHourList = hours.map(hour => {
 			if (hour >= moment(ev.start).format('HH')) {
 				return ( <option value={hour} key={'eh-' + hour}>{hour}</option> )
 			}			
 		});
 
-		var endMinuteList = minutes.map(function (minute) {
+		var endMinuteList = minutes.map(minute => {
 			return ( <option value={minute} key={'em-' + minute}>{minute}</option> )
 		});
 
-		var catList = this.props.categories.map(function (cat) {
+		var catList = this.props.categories.map(cat => {
 			return ( <option value={cat.id} key={cat.id}>{cat.name}</option> )
 		});
 
@@ -289,4 +293,4 @@ module.exports = React.createClass({
 			</div>
 		)
 	}
-}); 
+} 

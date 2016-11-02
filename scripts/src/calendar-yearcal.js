@@ -1,42 +1,52 @@
-var React = require('react'),
-	moment = require('moment');
+import React from 'react';
+import moment from 'moment';
 
-module.exports = React.createClass({
-	getInitialState: function () {
-		return {
+export default class CalendarYearcal extends React.Component {
+	
+	constructor(props) {
+		super(props);
+		
+		this.state = {
 			year: '',
 			month: ''
-		}
-	},
-	componentDidMount: function () {
-		var self = this;
+		};
+
+		this.navYear = this.navYear.bind(this);
+		this.clickMonth = this.clickMonth.bind(this);
+	}
+
+	componentDidMount() {
+		
 		this.setState({
-			year: moment(self.props.date).format('YYYY'),
-			month: moment(self.props.date).format('MM')
+			year: moment(this.props.date).format('YYYY'),
+			month: moment(this.props.date).format('MM')
 		})
-	},
-	componentWillReceiveProps: function (nextProps) {
-		var self = this;
+	}
+
+	componentWillReceiveProps(nextProps) {
+
 		this.setState({
 			year: moment(nextProps.date).format('YYYY'),
 			month: moment(nextProps.date).format('MM')
 		});
-	},
-	navYear: function (e) {
-		var self = this;
+	}
+
+	navYear(e) {
 		e.preventDefault();
 
-		var newYear = moment(self.state.year, 'YYYY').add(1, 'years').format('YYYY'); 
-		if (e.target.dataset.arg == 'prev') newYear = moment(self.state.year, 'YYYY').subtract(1, 'years').format('YYYY');
+		let newYear = moment(this.state.year, 'YYYY').add(1, 'years').format('YYYY'); 
+		if (e.target.dataset.arg == 'prev') newYear = moment(this.state.year, 'YYYY').subtract(1, 'years').format('YYYY');
 
 		this.setState({ year: newYear });
-	},
-	clickMonth: function (e) {
+	}
+
+	clickMonth(e) {
 		e.preventDefault();
 		this.props.setDate(moment(e.target.dataset.month, 'YYYY-MM'));
-	},
-	render: function () {
-		var viewYear = moment(this.props.date).format('YYYY'),
+	}
+
+	render() {
+		let viewYear = moment(this.props.date).format('YYYY'),
 			now = moment().format('YYYY-MM');
 
 		return (
@@ -101,4 +111,4 @@ module.exports = React.createClass({
 			</div>
 		)
 	}
-});
+}

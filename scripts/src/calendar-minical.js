@@ -1,12 +1,11 @@
-var React = require('react'),
-	$ = require('jquery'),
-	moment = require('moment'),
-	fullCal = require('fullcalendar');
+import React from 'react';
+import $ from 'jquery';
+import moment from 'moment';
+import fullCalendar from 'fullcalendar';
 
-module.exports = React.createClass({
-	componentDidMount: function () {
-		var self = this,
-			now = moment();
+export default class CalendarMinical extends React.Component {
+	componentDidMount() {
+		let that = this, now = moment();
 
 		$('#calendar-minical').fullCalendar({
 			firstDay: 1,
@@ -21,30 +20,32 @@ module.exports = React.createClass({
 				next: '\u203A'
 			},
 			dayNamesShort: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-			dayClick: function (date, jsEvent, view) {
+			dayClick(date, jsEvent, view) {
 				$('thead tr').removeClass('display-week');
 				$('thead td[data-date=' + moment(date).format('YYYY-MM-DD') + ']').parent().addClass('display-week');
 				var clickDate = moment(date).format('YYYY-MM-DD');
-				self.props.setDate(moment(clickDate, 'YYYY-MM-DD'));
+				that.props.setDate(moment(clickDate, 'YYYY-MM-DD'));
 			},
-			dayRender: function (date, cell) {
-				if (moment(date).isSame(self.props.date, 'day')) $('thead td[data-date=' + moment(date).format('YYYY-MM-DD') + ']').parent().addClass('display-week');
+			dayRender(date, cell) {
+				if (moment(date).isSame(that.props.date, 'day')) $('thead td[data-date=' + moment(date).format('YYYY-MM-DD') + ']').parent().addClass('display-week');
 				if (moment(date).isSame(now, 'day')) $('thead td[data-date=' + moment(date).format('YYYY-MM-DD') + ']').html('<span>' + moment(date).format('D') + '</span>');
 			},
 		});
 
-	},
-	componentWillReceiveProps: function (nextProps) {
-		var self = this;
+	}
+
+	componentWillReceiveProps(nextProps) {
+
 		$('#calendar-minical').fullCalendar('gotoDate', nextProps.date);
-		if (!moment(nextProps.date).isSame(self.props.date, 'week')) {
+		if (!moment(nextProps.date).isSame(this.props.date, 'week')) {
 			$('thead tr').removeClass('display-week');
 			$('thead td[data-date=' + moment(nextProps.date).format('YYYY-MM-DD') + ']').parent().addClass('display-week');
 		}
-	},
-	render: function () {
+	}
+
+	render() {
 		return (
 			<div id='calendar-minical'></div>
 		)
 	}
-});
+}
