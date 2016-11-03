@@ -36,12 +36,12 @@ module.exports = {
 		filename: '[name].js'
 	},
 	plugins: debug ? [
-			new webpack.optimize.CommonsChunkPlugin('client.js') 
+			new webpack.optimize.CommonsChunkPlugin('vendors', 'vendors.js', Infinity) 
 		] : [
 			new webpack.DefinePlugin({ 'process.env':{ 'NODE_ENV': JSON.stringify('production') } }),
 			new webpack.optimize.DedupePlugin(),
 			new webpack.optimize.OccurenceOrderPlugin(),
 			new webpack.optimize.UglifyJsPlugin({ mangle: false, sourcemap: false }),
-			new webpack.optimize.CommonsChunkPlugin('client.js'),
+			new webpack.optimize.CommonsChunkPlugin('vendors', 'vendors.js', Infinity),
 	],
 };
