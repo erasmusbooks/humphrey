@@ -345,4 +345,94 @@
 			}
 		}
 	}
+
+	#comments {
+		list-style-type: none;
+		border-bottom: 1px solid @main-line;
+		display: table;
+		table-layout: fixed;
+
+		li {
+			display: table-row;
+
+			.comment-author {
+				display: table-cell;
+				padding: 1em 1em 2em 28vw;
+				vertical-align: top;
+				text-align: right;
+
+				.comment-author-name {
+					font-size: .9em;
+					font-weight: bold;
+					white-space: nowrap;
+				}
+
+				.avatar {
+					width: 4rem;
+					height: 4rem;
+					display: inline-block;
+					border-radius: 100%;
+					background-size: cover;
+					background-position: center center;
+					border: 2px solid @header-line;
+				}
+			}
+
+			.comment-content {
+				display: table-cell;
+				padding: 1em 20vw 1em 1em ;
+				vertical-align: top;
+
+				p {
+					display: block;
+					margin-bottom: 1.4em;
+				}
+
+				.comment-meta {
+					font-size: .7em;
+					opacity: .7;
+				}
+			}
+
+			&:last-child .comment-content {
+				padding-bottom: 2em;
+			}
+		}
+	}
+
+	#commentform {
+		margin: 3em 0 10em;
+		display: table;
+		table-layout: fixed;
+
+		.respond-author {
+			display: table-cell;
+			vertical-align: top;
+			width: 41vw;
+			text-align: right;
+			padding: 0 1em 1em;
+
+			label {
+				display: block;
+				text-align: right;
+				padding-bottom: .2em;
+				opacity: .8;
+			}
+
+			input {
+				margin-bottom: 1.5em;
+				width: 23vw;
+			}
+		}
+
+		.respond-content {
+			display: table-cell;
+			vertical-align: top;
+			width: 59vw;
+
+			textarea {
+				width: 35vw;
+			}
+		}
+	}
 }

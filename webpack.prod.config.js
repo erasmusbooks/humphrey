@@ -3,7 +3,7 @@ var webpack = require('webpack'),
 
 module.exports = {
 	context: '',
-	devtool: 'inline-sourcemap',
+	devtool: null,
 	entry: {
 		universal: './scripts/src/universal.js',
 		dashboard: './scripts/src/dashboard.js',
@@ -33,6 +33,10 @@ module.exports = {
 		filename: '[name].js'
 	},
 	plugins: [
-		new webpack.optimize.CommonsChunkPlugin('vendors', 'vendors.js', Infinity) 
+		new webpack.DefinePlugin({ 'process.env':{ 'NODE_ENV': JSON.stringify('production') } }),
+		new webpack.optimize.DedupePlugin(),
+		new webpack.optimize.OccurenceOrderPlugin(),
+		new webpack.optimize.UglifyJsPlugin({ mangle: false, sourcemap: false }),
+		new webpack.optimize.CommonsChunkPlugin('vendors', 'vendors.js', Infinity),
 	],
 };
