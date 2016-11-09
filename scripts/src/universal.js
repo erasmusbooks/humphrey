@@ -334,7 +334,7 @@ $(document).on('keyup', '#isbn-input', e => {
 
 // SPLIT VAT
 
-$("#split-total-input, #split-vat-input").on("keyup", function () {
+$(document).on("keyup", "#split-total-input, #split-vat-input", (e) => {
 	var ttl = $("#split-total-input").val();
 	var vat = $("#split-vat-input").val();
 
@@ -343,7 +343,7 @@ $("#split-total-input, #split-vat-input").on("keyup", function () {
 	$("#split-low").html("");
 
 	if (ttl && vat) {
-		if (isNaN(ttl) || isNaN(vat)) return $("#split-error").html("Dit is geen geldig bedrag.");
+		if (isNaN(ttl) || isNaN(vat)) return $("#split-error").html("Not a valid VAT amount.");
 		$("#split-high").html((((ttl * 0.06) - vat) / -0.15).toFixed(2));
 		$("#split-low").html((ttl - ((ttl * 0.06 - vat) / -0.15)).toFixed(2));
 	}
