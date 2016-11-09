@@ -330,4 +330,21 @@ $(document).on('keyup', '#isbn-input', e => {
 		$('#group').html(payload.codes.group + " (" + payload.codes.groupname + ")");
 		$('#publisher').html(payload.codes.publisher);
 	}
+});
+
+// SPLIT VAT
+
+$("#split-total-input, #split-vat-input").on("keyup", function () {
+	var ttl = $("#split-total-input").val();
+	var vat = $("#split-vat-input").val();
+
+	$("#split-error").html("");
+	$("#split-high").html("");
+	$("#split-low").html("");
+
+	if (ttl && vat) {
+		if (isNaN(ttl) || isNaN(vat)) return $("#split-error").html("Dit is geen geldig bedrag.");
+		$("#split-high").html((((ttl * 0.06) - vat) / -0.15).toFixed(2));
+		$("#split-low").html((ttl - ((ttl * 0.06 - vat) / -0.15)).toFixed(2));
+	}
 }); 
