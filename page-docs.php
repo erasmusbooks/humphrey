@@ -27,7 +27,7 @@
 
 							if (in_array($user_role, $permitted)) { ?>
 
-								<h1><?php the_title(); ?></h1>
+								<h1><?php the_title(); ?> <?php edit_post_link('Edit', '<small>', '</small>'); ?></h1>
 								<div><?php the_content(); ?></div>
 
 							<?php } else { ?>
@@ -39,7 +39,7 @@
 
 						} else { ?>
 					
-							<h1><?php the_title(); ?></h1>
+							<h1><?php the_title(); ?> <?php edit_post_link('Edit', '<small>', '</small>'); ?></h1>
 							<div><?php the_content(); ?></div>
 
 						<?php }
@@ -57,7 +57,7 @@
 
 				<article id='stuff'>
 					
-					<h1><?php the_title(); ?></h1>
+					<h1><?php the_title(); ?> <?php edit_post_link('Edit', '<small>', '</small>'); ?></h1>
 					<div><?php the_content(); ?></div>
 
 				</article>
