@@ -1,6 +1,7 @@
 #tools.content {
 	position: relative;
 	margin-right: @side-width;
+	min-height: 100%;
 	.clearfix();
 
 	.loading {
@@ -37,7 +38,24 @@
 				&#GBP td { background-color: @curr-gbp; }
 
 				&.active {
-					td { background-color: @curr-act; }
+					td { 
+						background-color: @curr-act; 
+						border-bottom-color: @black-40;
+						position: relative;
+
+						&:first-child { border-left-color: @black-40 }
+						&:last-child { border-right-color: @black-40 }
+
+						&:after {
+							content: '';
+							display: block;
+							top: 0;
+							left: 0;
+							right: 0;
+							height: 1px;
+							background-color: @black-40;
+						}
+					}
 			
 					&#EUR td { background-color: darken(@curr-eur, 4%); }
 					&#USD td { background-color: darken(@curr-usd, 4%); }
@@ -100,4 +118,55 @@
 		}
 	}
 
+	#chatbot {
+		position: relative;
+		background-color: @main-back;
+		top: -4.75rem;
+		left: -3rem;
+		width: calc(100% + 10rem);
+
+		.material-icons {
+			position: absolute;
+			top: 1.2rem;
+			font-size: 2.2em;
+			color: @header-line;
+			left: 3rem;
+		}
+
+		input[type="text"] {
+			width: 100%;
+			border-width: 0 0 1px 0;
+			font-size: 1.5em;
+			padding: 1.3rem 3rem 1.3rem 6rem; 
+
+			&:focus { outline-width: 0; }
+		}
+
+		ul {
+			list-style-type: none;
+			margin: 0;
+			padding: 0;
+
+			li {
+				margin: 0;
+				padding: 1.4rem 8rem 1.4rem 3rem;
+				border-bottom: 1px solid @main-line;
+			}
+
+			.person {
+				float: left;
+				width: 13%;
+				color: @main-vague;
+				font-weight: bold;
+
+				&.humphrey {
+					color: @royalblue;
+				}
+			}
+
+			.message {
+				margin-left: 13%;
+			}
+		}
+	}
 }

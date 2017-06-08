@@ -348,3 +348,19 @@ $(document).on("keyup", "#split-total-input, #split-vat-input", (e) => {
 		$("#split-low").html((ttl - ((ttl * 0.06 - vat) / -0.15)).toFixed(2));
 	}
 }); 
+
+// CHATBOT
+
+$(document).on('submit', '#chatbot', e => {
+	e.preventDefault();
+
+	let msg = $("#chatbot input").val();
+	if (msg.length) {
+		$('#chatbot ul').prepend('<li><div class="person">You</div><div class="message">' + msg +'</div></li>');
+		$("#chatbot input").val('');
+
+		if (eval(msg)) {
+			$('#chatbot ul').prepend('<li><div class="person humphrey">Humphrey</div><div class="message">' + eval(msg) +'</div></li>');
+		}
+	}
+});
