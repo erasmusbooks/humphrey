@@ -38,24 +38,10 @@
 				&#GBP td { background-color: @curr-gbp; }
 
 				&.active {
+					outline: 1px solid @black-40;
+
 					td { 
 						background-color: @curr-act; 
-						border-bottom-color: @black-40;
-						position: relative;
-
-						&:first-child { border-left-color: @black-40 }
-						&:last-child { border-right-color: @black-40 }
-
-						&:after {
-							content: '';
-							display: block;
-							position: absolute;
-							top: 0;
-							left: 0;
-							right: 0;
-							height: 1px;
-							background-color: @black-40;
-						}
 					}
 			
 					&#EUR td { background-color: darken(@curr-eur, 4%); }
