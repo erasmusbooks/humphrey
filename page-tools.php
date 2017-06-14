@@ -1,6 +1,10 @@
-<?php /* Template Name: Tools */ ?>
+<?php 
+	/* Template Name: Tools */ 
 
-<?php get_header(); ?>
+	global $post;
+	get_header();
+?>
+
 
 <div id="tools" class="content">
 
@@ -14,7 +18,7 @@
 
 			<?php if (get_field('login_required')) { ?>
 
-				<article id='stuff'>
+				<article id='stuff' class='<?php echo $post->post_name ?>'>
 					
 					<?php if (is_user_logged_in()) {
 						
@@ -56,7 +60,7 @@
 
 			<?php } else { ?>
 
-				<article id='stuff'>
+				<article id='stuff' class='<?php echo $post->post_name ?>'>
 					
 					<h1><?php the_title(); ?></h1>
 					<div><?php the_content(); ?></div>

@@ -1,7 +1,6 @@
 #tools.content {
 	position: relative;
 	margin-right: @side-width;
-	min-height: 100%;
 	.clearfix();
 
 	.loading {
@@ -105,55 +104,78 @@
 		}
 	}
 
-	#chatbot {
-		position: relative;
-		background-color: @main-back;
-		top: -4.75rem;
-		left: -3rem;
-		width: calc(100% + 10rem);
+	#stuff.humphreybot {
+		margin: -1.5rem -3rem -3.9rem;
 
-		.material-icons {
-			position: absolute;
-			top: 1.2rem;
-			font-size: 2.2em;
-			color: @header-line;
-			left: 3rem;
-		}
+		h1 { display: none; }
 
-		input[type="text"] {
-			width: 100%;
-			border-width: 0 0 1px 0;
-			font-size: 1.5em;
-			padding: 1.3rem 3rem 1.3rem 6rem; 
+		& > div {
 
-			&:focus { outline-width: 0; }
-		}
+			#humphreybot {
 
-		ul {
-			list-style-type: none;
-			margin: 0;
-			padding: 0;
+				.command-line {
+					padding: 0 8rem 0 1rem;
+			
+					.material-icons {
+						font-size: 2.2em;
+						color: @header-line;
+						margin-left: -.3em;
+					}
 
-			li {
-				margin: 0;
-				padding: 1.4rem 8rem 1.4rem 3rem;
-				border-bottom: 1px solid @main-line;
-			}
+					input[type="text"] {
+						border-width: 0;
+						font-size: 1em;
+						padding: 0;
+						position: relative;
+						top: -.7em;
+						width: 80%;
 
-			.person {
-				float: left;
-				width: 13%;
-				color: @main-vague;
-				font-weight: bold;
+						&:focus { outline-width: 0; }
+						&::placeholder { color: @header-line; }
+					}
 
-				&.humphrey {
-					color: @royalblue;
+					.user-input {
+						font-size: 1em;
+						font-weight: bold;
+						margin-top: .4em;
+					}
+
+					&.bottom {
+						padding-bottom: 1em;
+
+						.material-icons { color: @royalblue; }
+					}
+				}
+		
+				ul {
+					list-style-type: none;
+					margin: .5rem 0 0 ;
+					padding: 1rem 0 0;
+
+					li {
+						margin: 0;
+						padding: .2rem 8rem .2rem 1rem;
+						display: flex;
+						flex-direction: row;
+					}
+
+					.person {
+						color: @main-vague;
+						font-weight: bold;
+						flex: 0 0 1px;
+						padding-right: 1em;
+
+						&.humphrey {
+							color: @royalblue;
+						}
+					}
+
+					.message.user {
+						font-weight: bold		
+					}
 				}
 			}
-
-			.message {
-				margin-left: 13%;
-			}
 		}
+
 	}
 }

@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import isbn from 'isbn-utils';
+import moment from 'moment';
 
 require('../../styles/main.less');
 
@@ -211,7 +212,7 @@ $(document).ready(() => {
 	});
 
 	if (where == 'tools') {
-		getRates($('#base-currency').val()); 
+		getRates($('#base-currency').val() || 'EUR'); 
 		if ($('#base-amount').val()) calcVAT($('#base-amount').val());
 	}
 
@@ -351,16 +352,194 @@ $(document).on("keyup", "#split-total-input, #split-vat-input", (e) => {
 
 // CHATBOT
 
-$(document).on('submit', '#chatbot', e => {
+$(document).on('submit', '#humphreybot', e => {
 	e.preventDefault();
 
-	let msg = $("#chatbot input").val();
+	const msg = $("#humphreybot input").val();
 	if (msg.length) {
-		$('#chatbot ul').prepend('<li><div class="person">You</div><div class="message">' + msg +'</div></li>');
-		$("#chatbot input").val('');
 
-		if (eval(msg)) {
-			$('#chatbot ul').prepend('<li><div class="person humphrey">Humphrey</div><div class="message">' + eval(msg) +'</div></li>');
-		}
+		$('#humphreybot ul').append('<li class="command-line"><span class="material-icons">chevron_right</span><div class="user-input">' + msg +'</div></li>');
+		$("#humphreybot input").val('');
+
+		$(window).scrollTop(($("#humphreybot").offset().top + $("#humphreybot").outerHeight()) - window.innerHeight);
+		
+		$("#humphreybot .command-line.bottom").css('visibility', 'hidden');
+
+		const msgArray = msg.split(' ');
+		const msgFirst = msgArray[0].toLowerCase();
+
+		if(msgFirst == 'ph') {
+
+			let baseCurr = isNaN(msgArray[1]) ? msgArray[1].toUpperCase() : msgArray[2].toUpperCase();
+			let baseAmount = isNaN(msgArray[2]) ? msgArray[1] : msgArray[2];
+
+			$.getJSON('http://api.fixer.io/latest?base=' + baseCurr, data => {
+
+				var baseRates = data.rates;
+				baseRates[data.base] = 1;
+				
+				var calcRates = [ 'EUR', 'USD', 'GBP', 'AUD', 'BRL', 'CAD', 'CHF', 'CNY', 'DKK', 'HKD', 'JPY', 'MYR', 'NOK', 'NZD', 'PLN', 'SEK', 'SGD', 'ZAR' ];
+
+				var tableContents = '';
+
+				calcRates.forEach(i => {
+					var tableActive = i == data.base ? 'active' : '';
+
+					var calc00 = (baseAmount * baseRates[i]).toFixed(2);
+					var calc20 = (calc00 / .8).toFixed(2);
+					var plus20 = (calc20 - calc00).toFixed(2);
+					var calc30 = (calc00 / .7).toFixed(2);
+					var plus30 = (calc30 - calc00).toFixed(2);
+					var calc40 = (calc00 / .6).toFixed(2);
+					var plus40 = (calc40 - calc00).toFixed(2);
+
+					var tableRow = '<tr id="' + i +'" class="' + tableActive + '"><td class="id">' + i +'</td><td class="rate">' + baseRates[i] +'</td><td class="calc">'+ calc00 +'</td><td class="twenty">'+ calc20 +'</td><td class="twenty-margin"><small>+'+ plus20 +'</small></td><td class="thirty">'+ calc30 +'</td><td class="thirty-margin"><small>+'+ plus30 +'</small></td><td class="fourty">'+ calc40 +'</td><td class="fourty-margin"><small>+'+ plus40 +'</small></td></tr>';
+					tableContents = tableContents + tableRow;
+				})
+			
+				hbReply('<table class="currency" style="margin-bottom: .3em;"><thead><tr><th style="width: 1%;"></th><th>Rate</th><th>Calculated</th><th colspan="2">+20%</th><th colspan="2">+30%</th><th colspan="2">+40%</th></tr></thead><tbody>' + tableContents + '</tbody></table><small id="pricing-byline" style="text-align: left;">Calculation based on <a href="http://www.ecb.europa.eu/stats/exchange/eurofxref/html/index.en.html">ECB rates</a> <span class="last-updated">(last updated <strong>' + data.date +'</strong>)</span></small>')
+			})
+			.fail((jqXHR, textStatus, errorThrown) => { 
+				hbReply('Unable to process <strong>'+ msg +'</strong> input. To use Pricing Help, please provide base amount and currency: <em>ph 16.50 usd</em>.')
+			});
+
+		} else if (msgFirst == 'vat' || msgFirst == 'btw') {
+			
+			if (isNaN(msgArray[1])) {
+				hbReply('Unable to process <strong>'+ msg +'</strong> input. To use VAT conversion, please provide a valid base amount: <em>vat 85.25</em>.')
+			} else {
+
+				let a = msgArray[1];
+				let vatRates = [ 4, 5, 5.5, 6, 7, 8, 9, 10, 19, 20, 21];
+
+				let tableContents = '';
+				vatRates.forEach(vat => {
+					let v = (vat / 100) + 1,
+						incl = (a/v).toFixed(2),
+						inclm = '<small>+' + (a-(a/v)).toFixed(2) + '</small>',
+						excl = (a*v).toFixed(2),
+						exclm = '<small>-' + ((a*v)-a).toFixed(2) + '</small>';
+					
+
+					let tableRow = '<tr id="five"><td>'+ vat +'</td><td class="incl">'+ incl +'</td><td class="incl-margin">'+ inclm +'</td><td class="excl">'+ excl +'</td><td class="excl-margin">'+ exclm +'</td></tr>';
+
+					tableContents = tableContents + tableRow;
+				})
+
+				hbReply('<table class="vat" style="float: none;"><thead><tr><th style="width: 1%;">%</th><th colspan="2">Incl.</th><th colspan="2">Excl.</th></tr></thead><tbody>'+ tableContents +'</tbody></table>')
+			}
+
+		} else if (msgFirst == 'isbn') {
+				
+			if (isbn.parse(msgArray[1])) {
+					
+				let payload = isbn.parse(msgArray[1]);
+
+				let isbn10 = payload.codes.isbn10;
+				let isbn10h = payload.codes.isbn10h;
+				let isbn13 = payload.codes.isbn13;
+				let isbn13h = payload.codes.isbn13h;
+				let isbngroup = payload.codes.group + " (" + payload.codes.groupname + ")";
+				let publisher = payload.codes.publisher;
+				
+				hbReply('<table class="isbn-chart" style="width: auto"><tbody><tr><td>ISBN10</td><td>'+ isbn10 +'</td></tr><tr><td>ISBN10(-)</td><td>'+ isbn10h +'</td></tr><tr><td>ISBN13</td><td>'+ isbn13 +'</td></tr><tr><td>ISBN13(-)</td><td>'+ isbn13h +'</td></tr><tr><td>Group</td><td>'+ isbngroup +'</td></tr><tr><td>Publisher</td><td>'+ publisher +'</td></tr></tbody></table>')
+
+			} else {
+				
+				hbReply('Unable to process <strong>'+ msg +'</strong> input. To use ISBN conversion, please provide a valid ISBN: <em>isbn 978-3-16-148410-0</em>.')
+
+			}			
+
+		} else if (msgFirst == 'search' || msgFirst == 's') {
+
+			var s = '';
+			msgArray.forEach((w,i) => {
+				if (i == 1) s = s + w;
+				if (i > 1) s = s + '+' + w;
+			})
+
+			$.getJSON('https://www.googleapis.com/books/v1/volumes?q='+ s +'&maxResults=3&key=AIzaSyDoOCTxCWWoFIlGvVQ0ZCiveGE9sDXFyeA', data => {
+				let tableContents = '';
+				console.log(data)
+
+				if (data.items.length) {
+					data.items.forEach((book, i) => {
+						let b = book.volumeInfo;
+						
+						let authors = '';
+						if (b.authors) {
+							b.authors.forEach((a, i) => {
+								if (i==0) {
+									authors = authors + a;
+								} else {
+									authors = authors + "; " + a;							
+								}
+							})
+						} else { authors = 'Author unknown' }
+
+						let cover;
+						if (b.imageLinks) {
+							cover = '<img src="'+b.imageLinks.smallThumbnail+'" title="'+b.title+'" height="120">'
+						} else {
+							cover = '<i class="material-icons" style="color:#ddd;font-size:120px;">book</i>'
+						}
+
+						let isbNumber;
+						b.industryIdentifiers.forEach(i => {
+							if (i.identifier.length == 13) {
+								isbNumber = i.identifier
+							} 								
+						});
+
+						let descr = ''
+						if (b.description) {
+							descr = b.description.substring(0, 300) + '...' 
+						} else { descr = 'No description' }
+
+						let tableRow = '<tr><td width="1%" style="text-align: left;">'+cover+'</td><td style="text-align: left"><em>'+authors+'</em><br><h3 style="display: inline; margin: 0;">'+b.title+'</h3><small> '+(b.subtitle || '')+'</small><br>'+(isbNumber || 'ISBN unknown')+' - '+(b.publisher || 'Publisher unknown')+', '+(b.publishedDate || 'Date unknown')+'<p style="margin: .5em 0 0">'+descr+'</p></td></tr>';
+
+						tableContents = tableContents + tableRow;			
+					})
+					
+				}
+			
+				hbReply('<table><tbody>'+ tableContents +'</tbody></table>')
+			});
+
+
+		} else if (msgFirst == 'help') {
+			
+			hbReply('Help text')
+
+		} else {
+
+			let error;
+
+			try { eval(msg) }
+			catch (err) { error = err; }
+					
+			if (error) {
+				hbReply('Input <strong color="red">' + msg + '</strong> not recognized. Please type <em>help</em> for a list of commands.<br>');
+
+			} else {
+
+				hbReply(msg + " = <strong>" + eval(msg) + "</strong>", 1);
+			}
+		} 
 	}
 });
+
+function hbReply (reply, time) {
+
+	setTimeout(function () {
+
+		$('#humphreybot ul').append('<li><div class="person">'+ moment().format("HH:mm:ss") +'</div><div class="message">' + reply +'</div></li>');
+		
+		$("#humphreybot .command-line.bottom").css('visibility', 'visible');
+		
+		$("#humphreybot input").focus();
+
+		$(window).scrollTop(($("#humphreybot").offset().top + $("#humphreybot").outerHeight()) - window.innerHeight);
+
+	}, time ?  time : Math.floor(Math.random() * 750) + 250)
+}
