@@ -368,42 +368,58 @@ $(document).on('submit', '#humphreybot', e => {
 		const msgArray = msg.split(' ');
 		const msgFirst = msgArray[0].toLowerCase();
 
-		if(msgFirst == 'ph') {
+		if (msgFirst == 'ph' || msgFirst == 'price' || msgFirst == 'c' || msgFirst == 'curr' || msgFirst == 'currency') {
 
-			let baseCurr = isNaN(msgArray[1]) ? msgArray[1].toUpperCase() : msgArray[2].toUpperCase();
-			let baseAmount = isNaN(msgArray[2]) ? msgArray[1] : msgArray[2];
+			if (!msgArray[1] || !msgArray[2]) {
+				hbReply('Unable to process <strong>'+ msg +'</strong> input. To use Pricing Help, please provide base amount and currency: <em>c 16.50 usd</em> or <em>c sgd 99 myr</em>.')
 
-			$.getJSON('http://api.fixer.io/latest?base=' + baseCurr, data => {
+			} else {
 
-				var baseRates = data.rates;
-				baseRates[data.base] = 1;
+				let baseCurr = isNaN(msgArray[1]) ? msgArray[1].toUpperCase() : msgArray[2].toUpperCase();
+				let baseAmount = isNaN(msgArray[2]) ? msgArray[1] : msgArray[2];
+				let convCurr = false
+
+				if (msgArray[3]) convCurr = msgArray[3].toUpperCase();
+
+				$.getJSON('http://api.fixer.io/latest?base=' + baseCurr, data => {
+
+					var baseRates = data.rates;
+					baseRates[data.base] = 1;
+					
+					var calcRates;
+
+					if (convCurr) {
+						calcRates = [ data.base, convCurr ];
+					} else {
+						calcRates = [ 'EUR', 'USD', 'GBP', 'AUD', 'BRL', 'CAD', 'CHF', 'CNY', 'DKK', 'HKD', 'JPY', 'MYR', 'NOK', 'NZD', 'PLN', 'SEK', 'SGD', 'ZAR' ];
+					}
+
+					var tableContents = '';
+
+					calcRates.forEach(i => {
+						var tableActive = i == data.base ? 'active' : '';
+
+						var calc00 = (baseAmount * baseRates[i]).toFixed(2);
+						var calc20 = (calc00 / .8).toFixed(2);
+						var plus20 = (calc20 - calc00).toFixed(2);
+						var calc30 = (calc00 / .7).toFixed(2);
+						var plus30 = (calc30 - calc00).toFixed(2);
+						var calc40 = (calc00 / .6).toFixed(2);
+						var plus40 = (calc40 - calc00).toFixed(2);
+
+						var tableRow = '<tr id="' + i +'" class="' + tableActive + '"><td class="id">' + i +'</td><td class="rate">' + baseRates[i] +'</td><td class="calc">'+ calc00 +'</td><td class="twenty">'+ calc20 +'</td><td class="twenty-margin"><small>+'+ plus20 +'</small></td><td class="thirty">'+ calc30 +'</td><td class="thirty-margin"><small>+'+ plus30 +'</small></td><td class="fourty">'+ calc40 +'</td><td class="fourty-margin"><small>+'+ plus40 +'</small></td></tr>';
+						tableContents = tableContents + tableRow;
+					})
 				
-				var calcRates = [ 'EUR', 'USD', 'GBP', 'AUD', 'BRL', 'CAD', 'CHF', 'CNY', 'DKK', 'HKD', 'JPY', 'MYR', 'NOK', 'NZD', 'PLN', 'SEK', 'SGD', 'ZAR' ];
-
-				var tableContents = '';
-
-				calcRates.forEach(i => {
-					var tableActive = i == data.base ? 'active' : '';
-
-					var calc00 = (baseAmount * baseRates[i]).toFixed(2);
-					var calc20 = (calc00 / .8).toFixed(2);
-					var plus20 = (calc20 - calc00).toFixed(2);
-					var calc30 = (calc00 / .7).toFixed(2);
-					var plus30 = (calc30 - calc00).toFixed(2);
-					var calc40 = (calc00 / .6).toFixed(2);
-					var plus40 = (calc40 - calc00).toFixed(2);
-
-					var tableRow = '<tr id="' + i +'" class="' + tableActive + '"><td class="id">' + i +'</td><td class="rate">' + baseRates[i] +'</td><td class="calc">'+ calc00 +'</td><td class="twenty">'+ calc20 +'</td><td class="twenty-margin"><small>+'+ plus20 +'</small></td><td class="thirty">'+ calc30 +'</td><td class="thirty-margin"><small>+'+ plus30 +'</small></td><td class="fourty">'+ calc40 +'</td><td class="fourty-margin"><small>+'+ plus40 +'</small></td></tr>';
-					tableContents = tableContents + tableRow;
+					hbReply('<table class="currency" style="margin-bottom: .3em;"><thead><tr><th style="width: 1%;"></th><th>Rate</th><th>Calculated</th><th colspan="2">+20%</th><th colspan="2">+30%</th><th colspan="2">+40%</th></tr></thead><tbody>' + tableContents + '</tbody></table><small id="pricing-byline" style="text-align: left;">Calculation based on <a href="http://www.ecb.europa.eu/stats/exchange/eurofxref/html/index.en.html">ECB rates</a> <span class="last-updated">(last updated <strong>' + data.date +'</strong>)</span></small>')
 				})
-			
-				hbReply('<table class="currency" style="margin-bottom: .3em;"><thead><tr><th style="width: 1%;"></th><th>Rate</th><th>Calculated</th><th colspan="2">+20%</th><th colspan="2">+30%</th><th colspan="2">+40%</th></tr></thead><tbody>' + tableContents + '</tbody></table><small id="pricing-byline" style="text-align: left;">Calculation based on <a href="http://www.ecb.europa.eu/stats/exchange/eurofxref/html/index.en.html">ECB rates</a> <span class="last-updated">(last updated <strong>' + data.date +'</strong>)</span></small>')
-			})
-			.fail((jqXHR, textStatus, errorThrown) => { 
-				hbReply('Unable to process <strong>'+ msg +'</strong> input. To use Pricing Help, please provide base amount and currency: <em>ph 16.50 usd</em>.')
-			});
+				.fail((jqXHR, textStatus, errorThrown) => { 
+					hbReply('Unable to process <strong>'+ msg +'</strong> input. To use Pricing Help, please provide base amount and currency: <em>c 16.50 usd</em> or <em>c sgd 99 myr</em>.')
+				});
+			}
 
-		} else if (msgFirst == 'vat' || msgFirst == 'btw') {
+
+		} else if (msgFirst == 'vat' || msgFirst == 'btw' || msgFirst == 'tva' || msgFirst == 'mwst') {
 			
 			if (isNaN(msgArray[1])) {
 				hbReply('Unable to process <strong>'+ msg +'</strong> input. To use VAT conversion, please provide a valid base amount: <em>vat 85.25</em>.')
@@ -429,7 +445,7 @@ $(document).on('submit', '#humphreybot', e => {
 				hbReply('<table class="vat" style="float: none;"><thead><tr><th style="width: 1%;">%</th><th colspan="2">Incl.</th><th colspan="2">Excl.</th></tr></thead><tbody>'+ tableContents +'</tbody></table>')
 			}
 
-		} else if (msgFirst == 'isbn') {
+		} else if (msgFirst == 'isbn' || msgFirst == 'i') {
 				
 			if (isbn.parse(msgArray[1])) {
 					
@@ -450,66 +466,90 @@ $(document).on('submit', '#humphreybot', e => {
 
 			}			
 
-		} else if (msgFirst == 'search' || msgFirst == 's') {
+		} else if (msgFirst == 'search' || msgFirst == 's' || msgFirst == 'query' || msgFirst == 'q') {
 
-			var s = '';
-			msgArray.forEach((w,i) => {
-				if (i == 1) s = s + w;
-				if (i > 1) s = s + '+' + w;
-			})
+			
+			if (msgArray.length > 1) {
+				
+				var s = '';
+				msgArray.forEach((w,i) => {
+					if (i == 1) s = s + w;
+					if (i > 1) s = s + '+' + w;
+				})
 
-			$.getJSON('https://www.googleapis.com/books/v1/volumes?q='+ s +'&maxResults=3&key=AIzaSyDoOCTxCWWoFIlGvVQ0ZCiveGE9sDXFyeA', data => {
-				let tableContents = '';
-				console.log(data)
+				$.getJSON('https://www.googleapis.com/books/v1/volumes?q='+ s +'&maxResults=3&key=AIzaSyDoOCTxCWWoFIlGvVQ0ZCiveGE9sDXFyeA', data => {
 
-				if (data.items.length) {
-					data.items.forEach((book, i) => {
-						let b = book.volumeInfo;
+					if (data.items) {
+						let tableContents = '';
 						
-						let authors = '';
-						if (b.authors) {
-							b.authors.forEach((a, i) => {
-								if (i==0) {
-									authors = authors + a;
-								} else {
-									authors = authors + "; " + a;							
-								}
-							})
-						} else { authors = 'Author unknown' }
+						data.items.forEach((book, i) => {
+							let b = book.volumeInfo;
+							
+							let authors = '';
+							if (b.authors) {
+								b.authors.forEach((a, i) => {
+									if (i==0) {
+										authors = authors + a;
+									} else {
+										authors = authors + "; " + a;							
+									}
+								})
+							} else { authors = 'Author unknown' }
 
-						let cover;
-						if (b.imageLinks) {
-							cover = '<img src="'+b.imageLinks.smallThumbnail+'" title="'+b.title+'" height="120">'
-						} else {
-							cover = '<i class="material-icons" style="color:#ddd;font-size:120px;">book</i>'
-						}
+							let cover;
+							if (b.imageLinks) {
+								cover = '<img src="'+b.imageLinks.smallThumbnail+'" title="'+b.title+'" height="120">'
+							} else {
+								cover = '<i class="material-icons" style="color:#ddd;font-size:120px;">book</i>'
+							}
 
-						let isbNumber;
-						b.industryIdentifiers.forEach(i => {
-							if (i.identifier.length == 13) {
-								isbNumber = i.identifier
-							} 								
-						});
+							let isbNumber;
+							if (b.industryIdentifiers) {
+								b.industryIdentifiers.forEach(i => {
+									if (i.identifier.length == 13) {
+										isbNumber = i.identifier
+									} 								
+								});
+							}	else { isbNumber = 'ISBN unknown' }
 
-						let descr = ''
-						if (b.description) {
-							descr = b.description.substring(0, 300) + '...' 
-						} else { descr = 'No description' }
+							let descr = ''
+							if (b.description) {
+								descr = b.description.substring(0, 300) + '...' 
+							} else { descr = 'No description' }
 
-						let tableRow = '<tr><td width="1%" style="text-align: left;">'+cover+'</td><td style="text-align: left"><em>'+authors+'</em><br><h3 style="display: inline; margin: 0;">'+b.title+'</h3><small> '+(b.subtitle || '')+'</small><br>'+(isbNumber || 'ISBN unknown')+' - '+(b.publisher || 'Publisher unknown')+', '+(b.publishedDate || 'Date unknown')+'<p style="margin: .5em 0 0">'+descr+'</p></td></tr>';
+							let tableRow = '<tr><td width="1%" style="text-align: left;">'+cover+'</td><td style="text-align: left"><em>'+authors+'</em><br><h3 style="display: inline; margin: 0;">'+b.title+'</h3><small> '+(b.subtitle || '')+'</small><br>'+(isbNumber || 'ISBN unknown')+' - '+(b.publisher || 'Publisher unknown')+', '+(b.publishedDate || 'Date unknown')+'<p style="margin: .5em 0 0">'+descr+'</p></td></tr>';
 
-						tableContents = tableContents + tableRow;			
-					})
+							tableContents = tableContents + tableRow;			
+						})
+						
+						hbReply('<table style="margin-bottom: .2em"><tbody>'+ tableContents +'</tbody></table><small id="pricing-byline" style="text-align: left;">See more results on <a href="https://www.google.com/search?tbm=bks&q='+s+'" target="_blank">Google Books</a></small>')
 					
-				}
-			
-				hbReply('<table><tbody>'+ tableContents +'</tbody></table>')
-			});
+					} else {
+						hbReply('No results found for <strong>' + msg + '</strong>.')
+					}
+				
+				});
+
+			} else {
+				hbReply('Unable to process <strong>'+ msg +'</strong> input. To use Book search, please provide a valid search term: <em>search ulysses joyce</em> or <em>q 9780679732266</em>.')
+			}
 
 
-		} else if (msgFirst == 'help') {
+		} else if (msgFirst == 'help' || msgFirst == 'h') {
 			
-			hbReply('Help text')
+			var helpCurrency = '<tr><td>Currency converter</td><td>The <strong>Currency converter</strong> prints a list of our most used currencies and it\'s conversions or converts two specific currencies. The results also includes 20%, 30% and 40% margins, which can be useful with pricing. The convertor accepts most major <a href="https://en.wikipedia.org/wiki/ISO_4217" target="_blank">ISO 4217 currency codes</a> and conversions are based on most recent available <a href="http://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html" target="_blank">ECB rates</a>.</td><td><em>currency, curr, c, ph, price</em></td><td width="20%">currency 12 eur<br>curr 39.95 usd<br>c gbp 24.50 eur</td></tr>';
+
+			var helpVAT = '<tr><td>VAT calculation</td><td>If you are wondering what an amount would look like including or excluding a certain percentage, use the <strong>VAT calculator</strong>.</td><td><em>vat, btw, mwst, tva</em></td><td>vat 130<br>btw 19.75</td></tr>';
+
+			var helpISBN = '<tr><td>ISBN converter</td><td>If you ever had the need to convert, hyphenate or breakdown an ISBN, the <strong>ISBN converter</strong> is your friend. It accepts any type of ISBN and prints out a list of all its variations and parts</td><td><em>isbn, i</em></td><td>isbn 978-3-16-148410-0<br>i 316148410X</td></tr>';
+
+			var helpSearch = '<tr><td>Book search</td><td>Looking for a book? HumphreyBot can help you search with a simple <strong>Book search</strong>. Just enter any search criteria and it will print a list of the top three search results, using the <a href="https://books.google.com" target="_blank">Google Books API</a>.</td><td><em>search, s, query, q</em></td><td>search ulysses joyce<br>s grapes wrath steinbeck<br>q 9780679732266</td></tr>';
+			
+			var helpCalc = '<tr><td>Calculation</td><td>HumphreyBot will do simple <strong>Calculation</strong>, no big deal.</td><td></td><td>2 * 8 - 3<br>(49 / 7) + 24</td></tr>';
+
+			let tableContents = helpCurrency + helpVAT + helpISBN + helpSearch + helpCalc;
+
+			hbReply('<table style="margin-bottom: .2em;"><thead><tr><th>Function</th><th>Description</th><th>Command(s)</th><th>Examples</th></tr></thead><tbody>'+tableContents+'</tbody></table>If you have questions, comments or suggestions, please let me know at <a href="mailto:ben@erasmusbooks.nl">ben@erasmusbooks.nl</a>')
 
 		} else {
 
