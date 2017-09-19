@@ -352,10 +352,22 @@ $(document).on("keyup", "#split-total-input, #split-vat-input", (e) => {
 
 // CHATBOT
 
+var msgHistory = [];
+$('#humphreybot input').keypress(e => {
+	console.log('hallo')
+	if (e.which == 38) {
+		alert('UP!')
+	} else if (e.which == 40) {
+		alert('DOWN!')
+	}
+})
+
 $(document).on('submit', '#humphreybot', e => {
 	e.preventDefault();
 
 	const msg = $("#humphreybot input").val();
+	msgHistory.push(msg);
+
 	if (msg.length) {
 
 		$('#humphreybot ul').append('<li class="command-line"><span class="material-icons">chevron_right</span><div class="user-input">' + msg +'</div></li>');
@@ -370,12 +382,12 @@ $(document).on('submit', '#humphreybot', e => {
 
 		if (msgFirst == 'ph' || msgFirst == 'price' || msgFirst == 'c' || msgFirst == 'curr' || msgFirst == 'currency') {
 
-			if (!msgArray[1] || !msgArray[2]) {
+			if (!msgArray[1]) {
 				hbReply('Unable to process <strong>'+ msg +'</strong> input. To use Pricing Help, please provide base amount and currency: <em>c 16.50 usd</em> or <em>c sgd 99 myr</em>.')
 
 			} else {
 
-				let baseCurr = isNaN(msgArray[1]) ? msgArray[1].toUpperCase() : msgArray[2].toUpperCase();
+				let baseCurr = isNaN(msgArray[1]) ? msgArray[1].toUpperCase() : msgArray[2] == undefined ? 'EUR' : isNaN(msgArray[2]) ? msgArray[2].toUpperCase() : null;
 				let baseAmount = isNaN(msgArray[2]) ? msgArray[1] : msgArray[2];
 				let convCurr = false
 
@@ -390,6 +402,8 @@ $(document).on('submit', '#humphreybot', e => {
 
 					if (convCurr) {
 						calcRates = [ data.base, convCurr ];
+					} else if (msgArray[2] == undefined) {
+						calcRates = [ 'EUR', 'USD', 'GBP' ];
 					} else {
 						calcRates = [ 'EUR', 'USD', 'GBP', 'AUD', 'BRL', 'CAD', 'CHF', 'CNY', 'DKK', 'HKD', 'JPY', 'MYR', 'NOK', 'NZD', 'PLN', 'SEK', 'SGD', 'ZAR' ];
 					}
