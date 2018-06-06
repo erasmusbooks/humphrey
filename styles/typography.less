@@ -10,6 +10,17 @@ body {
 	font-size: @font-size;
 }
 
+kbd {
+	font-family: monospace;
+	color: #fff;
+	background-color: #34495e;
+	padding: 2px 4px;
+	font-size: .9em;
+	border-radius: 4px;
+	margin-bottom: 1px;
+	white-space: nowrap;
+}
+
 // CONTENT
 
 .content:not(#calendar) {
@@ -30,14 +41,17 @@ body {
 	a {
 		color: @royalblue;
 
-		&:hover { color: darken(@royalblue, 15%) }
+		&:hover {
+			color: darken(@royalblue, 15%);
+		}
 	}
 
 	p {
 		margin-bottom: 1.4em;
 	}
 
-	ul, ol {
+	ul,
+	ol {
 		margin: 0 0 1.4em 1em;
 	}
 
@@ -54,9 +68,12 @@ body {
 		width: 100%;
 		margin-bottom: 1.4em;
 
-		&.compact { font-size: 13px; }
+		&.compact {
+			font-size: 13px;
+		}
 
-		th, td {
+		th,
+		td {
 			text-align: left;
 			padding: .5em;
 			border-width: 1px 0;
@@ -64,13 +81,13 @@ body {
 			border-color: @main-line;
 			vertical-align: top;
 
-			&:first-child { 
-				border-left-width: 1px; 
+			&:first-child {
+				border-left-width: 1px;
 				padding-left: 1em;
 			}
 
-			&:last-child { 
-				border-right-width: 1px; 
+			&:last-child {
+				border-right-width: 1px;
 				padding-right: 1em;
 			}
 		}
@@ -151,11 +168,10 @@ body {
 				line-height: 2em;
 				text-align: center;
 				font-weight: 800;
-
 			}
-			
-			&:hover span { 
-				color: @main-text; 
+
+			&:hover span {
+				color: @main-text;
 			}
 		}
 
@@ -173,7 +189,7 @@ body {
 				border-radius: .5em;
 				margin-bottom: .2em;
 			}
-		}	
+		}
 	}
 }
 
@@ -224,8 +240,7 @@ body {
 		}
 	}
 
-	.current_page_item  {
-	
+	.current_page_item {
 		& > a {
 			background-color: fade(@side-hover, 30%);
 			color: @side-text;
@@ -252,26 +267,28 @@ body {
 			padding-left: 2em;
 		}
 
-		.current_page_item a { 
-			padding-left: 1.5em !important; 
+		.current_page_item a {
+			padding-left: 1.5em !important;
 			background-color: fade(@side-hover, 20%);
 
 			&:hover {
-
 			}
 		}
 	}
-	
-	.current_page_ancestor {
 
+	.current_page_ancestor {
 		.children {
 			display: block;
 		}
 	}
 
-	.page_item_has_children > a i { display: block; }
+	.page_item_has_children > a i {
+		display: block;
+	}
 
-	.widget h2 { display: none; }
+	.widget h2 {
+		display: none;
+	}
 
 	form {
 		padding: 0 1em;
@@ -281,7 +298,8 @@ body {
 			font-size: .8em;
 		}
 
-		input[type='text'], input[type='password'] {
+		input[type='text'],
+		input[type='password'] {
 			margin-bottom: .4em;
 			width: 100%;
 		}
@@ -298,7 +316,6 @@ body {
 			float: right;
 		}
 	}
-
 }
 
 i {
@@ -317,7 +334,9 @@ i {
 	overflow: hidden;
 	text-overflow: ellipsis;
 
-	& > * { pointer-events: none }
+	& > * {
+		pointer-events: none;
+	}
 
 	&:before {
 		display: inline-block;
@@ -346,22 +365,28 @@ i {
 		opacity: 0;
 	}
 
-	&:hover:after { opacity: .45 }
-	&.active:after { opacity: 1;	}
+	&:hover:after {
+		opacity: .45;
+	}
+	&.active:after {
+		opacity: 1;
+	}
 }
 
 // FORMS
 
 form {
-
-	input[type='text'], input[type='password'], textarea {
+	input[type='text'],
+	input[type='password'],
+	textarea {
 		background-color: @main-back;
 		color: @main-text;
 		border: 1px solid @main-line;
 		border-radius: 3px;
 		padding: .6em;
 
-		&:hover, &:focus {
+		&:hover,
+		&:focus {
 			border-color: darken(@main-line, 10%);
 		}
 	}
@@ -373,7 +398,8 @@ form {
 		padding: .3em .6em;
 		border-radius: 1px;
 
-		&:hover, &:focus {
+		&:hover,
+		&:focus {
 			background-color: darken(@royalblue, 3%);
 			border-color: darken(@royalblue, 10%);
 		}
@@ -386,13 +412,14 @@ form {
 		border-radius: 3px;
 		padding: .6em;
 
-		&:hover, &:focus {
+		&:hover,
+		&:focus {
 			border-color: darken(@main-line, 10%);
 		}
 	}
 }
 
-// LOADING 
+// LOADING
 
 .loader {
 	position: absolute;
@@ -423,9 +450,15 @@ form {
 }
 
 @keyframes spin {
-	0% { transform: perspective(120px) rotateX(0deg) rotateY(0deg); } 
-	50% { transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg); } 
-	100% {transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg); }
+	0% {
+		transform: perspective(120px) rotateX(0deg) rotateY(0deg);
+	}
+	50% {
+		transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
+	}
+	100% {
+		transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+	}
 }
 
 #footer {
@@ -435,7 +468,9 @@ form {
 	position: relative;
 	top: -1px;
 
-	a { color: @black-60; }
+	a {
+		color: @black-60;
+	}
 
 	.credits {
 		float: left;

@@ -215,7 +215,7 @@
 				</div>
 				
 				<div class="entry">
-					<?php the_excerpt(); ?>
+					<?php the_content(); ?>
 				</div>
 
 				<div class="comments-link">

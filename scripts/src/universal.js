@@ -220,7 +220,7 @@ $(document).ready(() => {
 				}
 
 				if (e.target.firstChild.data == 'Pricing help') {
-					getRates($('#base-currency').val())
+					fetchRates($('#base-currency').val())
 					if ($('#base-amount').val()) calcVAT($('#base-amount').val())
 				}
 
@@ -249,7 +249,7 @@ $(document).ready(() => {
 	})
 
 	if (where == 'tools') {
-		getRates($('#base-currency').val() || 'EUR')
+		fetchRates($('#base-currency').val() || 'EUR')
 		if ($('#base-amount').val()) calcVAT($('#base-amount').val())
 	}
 })
@@ -257,7 +257,7 @@ $(document).ready(() => {
 // PRICING HELP
 
 $(document).on('change', '#base-currency', () => {
-	getRates($('#base-currency').val())
+	fetchRates($('#base-currency').val())
 })
 
 $(document).on('keyup', '#base-amount', e => {
@@ -290,14 +290,16 @@ $(document).on('submit', '#pricing-help', e => {
 	e.preventDefault()
 })
 
-let curr
-function getRates(base) {
-	$.getJSON('https://api.fixer.io/latest?base=' + base, data => {
-		$('#' + base + ' .rate').html(1)
+let curr = {}
+function fetchRates(base) {
+	const b = document.getElementsByTagName('base')[0].href
+	$.getJSON(b + '/wp-json/curr/newest', data => {
+		const z = 1 / data.rates[base]
+
 		$.each(data.rates, (key, value) => {
-			$('#' + key + ' .rate').html(value)
+			$('#' + key + ' .rate').html(parseFloat((value * z).toFixed(5)))
+			curr[key] = value * z
 		})
-		curr = data.rates
 
 		if ($('#base-amount').val()) calcRates($('#base-amount').val())
 
@@ -457,13 +459,18 @@ $(document).on('keyup', '#split-total-input, #split-vat-input', e => {
 
 // CHATBOT
 
-var msgHistory = []
-$('#humphreybot input').keypress(e => {
-	console.log('hallo')
-	if (e.which == 38) {
-		alert('UP!')
-	} else if (e.which == 40) {
-		alert('DOWN!')
+var msgHistory = [],
+	msgHistoryPos = -1
+
+$(document).on('keypress', '#humphreybot input', e => {
+	if (msgHistory.length > 0) {
+		if (e.keyCode == 38 && msgHistoryPos + 1 < msgHistory.length) {
+			$('#humphreybot input').val(msgHistory[msgHistoryPos + 1])
+			msgHistoryPos = msgHistoryPos + 1
+		} else if (e.keyCode == 40 && msgHistoryPos > -1) {
+			$('#humphreybot input').val(msgHistory[msgHistoryPos - 1])
+			msgHistoryPos = msgHistoryPos - 1
+		}
 	}
 })
 
@@ -471,7 +478,7 @@ $(document).on('submit', '#humphreybot', e => {
 	e.preventDefault()
 
 	const msg = $('#humphreybot input').val()
-	msgHistory.push(msg)
+	msgHistory.unshift(msg)
 
 	if (msg.length) {
 		$('#humphreybot ul').append(
@@ -503,7 +510,7 @@ $(document).on('submit', '#humphreybot', e => {
 				hbReply(
 					'Unable to process <strong>' +
 						msg +
-						'</strong> input. To use Pricing Help, please provide base amount and currency: <em>c 16.50 usd</em> or <em>c sgd 99 myr</em>.'
+						'</strong> input. To use Pricing Help, please provide base amount and currency: <kbd>c 16.50 usd</kbd> or <kbd>c sgd 99 myr</kbd>.'
 				)
 			} else {
 				let baseCurr = isNaN(msgArray[1])
@@ -516,14 +523,17 @@ $(document).on('submit', '#humphreybot', e => {
 
 				if (msgArray[3]) convCurr = msgArray[3].toUpperCase()
 
-				$.getJSON('https://api.fixer.io/latest?base=' + baseCurr, data => {
-					var baseRates = data.rates
-					baseRates[data.base] = 1
-
+				const b = document.getElementsByTagName('base')[0].href
+				$.getJSON(b + '/wp-json/curr/newest', data => {
+					const z = 1 / data.rates[baseCurr]
+					var baseRates = {}
+					$.each(data.rates, (key, value) => {
+						baseRates[key] = value * z
+					})
 					var calcRates
 
 					if (convCurr) {
-						calcRates = [data.base, convCurr]
+						calcRates = [baseCurr, convCurr]
 					} else if (msgArray[2] == undefined) {
 						calcRates = ['EUR', 'USD', 'GBP']
 					} else {
@@ -536,23 +546,17 @@ $(document).on('submit', '#humphreybot', e => {
 							'CAD',
 							'CHF',
 							'CNY',
-							'DKK',
-							'HKD',
 							'JPY',
-							'MYR',
-							'NOK',
-							'NZD',
-							'PLN',
-							'SEK',
-							'SGD',
 							'ZAR'
 						]
 					}
 
+					if (calcRates.indexOf(baseCurr) < 0) calcRates.push(baseCurr)
+
 					var tableContents = ''
 
 					calcRates.forEach(i => {
-						var tableActive = i == data.base ? 'active' : ''
+						var tableActive = i == baseCurr ? 'active' : ''
 
 						var calc00 = (baseAmount * baseRates[i]).toFixed(2)
 						var calc20 = (calc00 / 0.8).toFixed(2)
@@ -570,7 +574,7 @@ $(document).on('submit', '#humphreybot', e => {
 							'"><td class="id">' +
 							i +
 							'</td><td class="rate">' +
-							baseRates[i] +
+							parseFloat(baseRates[i].toFixed(5)) +
 							'</td><td class="calc">' +
 							calc00 +
 							'</td><td class="twenty">' +
@@ -594,7 +598,7 @@ $(document).on('submit', '#humphreybot', e => {
 							tableContents +
 							'</tbody></table><small id="pricing-byline" style="text-align: left;">Calculation based on <a href="http://www.ecb.europa.eu/stats/exchange/eurofxref/html/index.en.html">ECB rates</a> <span class="last-updated">(last updated <strong>' +
 							data.date +
-							'</strong>)</span></small>'
+							'</strong>)</span>. <a href="#" id="show-currencies">Available currencies</a>.</small>'
 					)
 				}).fail((jqXHR, textStatus, errorThrown) => {
 					hbReply(
@@ -614,7 +618,7 @@ $(document).on('submit', '#humphreybot', e => {
 				hbReply(
 					'Unable to process <strong>' +
 						msg +
-						'</strong> input. To use VAT conversion, please provide a valid base amount: <em>vat 85.25</em>.'
+						'</strong> input. To use VAT conversion, please provide a valid base amount: <kbd>vat 85.25</kbd>.'
 				)
 			} else {
 				let a = msgArray[1]
@@ -790,24 +794,24 @@ $(document).on('submit', '#humphreybot', e => {
 				hbReply(
 					'Unable to process <strong>' +
 						msg +
-						'</strong> input. To use Book search, please provide a valid search term: <em>search ulysses joyce</em> or <em>q 9780679732266</em>.'
+						'</strong> input. To use Book search, please provide a valid search term: <kbd>search ulysses joyce</kbd> or <kbd>q 9780679732266</kbd>.'
 				)
 			}
 		} else if (msgFirst == 'help' || msgFirst == 'h') {
 			var helpCurrency =
-				'<tr><td>Currency converter</td><td>The <strong>Currency converter</strong> prints a list of our most used currencies and it\'s conversions or converts two specific currencies. The results also includes 20%, 30% and 40% margins, which can be useful with pricing. The convertor accepts most major <a href="https://en.wikipedia.org/wiki/ISO_4217" target="_blank">ISO 4217 currency codes</a> and conversions are based on most recent available <a href="http://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html" target="_blank">ECB rates</a>.</td><td><em>currency, curr, c, ph, price</em></td><td width="20%">currency 12 eur<br>curr 39.95 usd<br>c gbp 24.50 eur</td></tr>'
+				'<tr><td>Currency converter</td><td>The <strong>Currency converter</strong> prints a list of our most used currencies and it\'s conversions or converts two specific currencies. The results also includes 20%, 30% and 40% margins, which can be useful with pricing. The convertor accepts most major <a href="https://en.wikipedia.org/wiki/ISO_4217" target="_blank">ISO 4217 currency codes</a> and conversions are based on most recent available <a href="http://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html" target="_blank">ECB rates</a>.</td><td><em>currency, curr, c, ph, price</em></td><td width="20%"><kbd>currency 12 eur</kbd><br><kbd>curr 39.95 usd</kbd><br><kbd>c gbp 24.50 eur</kbd></td></tr>'
 
 			var helpVAT =
-				'<tr><td>VAT calculation</td><td>If you are wondering what an amount would look like including or excluding a certain percentage, use the <strong>VAT calculator</strong>.</td><td><em>vat, btw, mwst, tva</em></td><td>vat 130<br>btw 19.75</td></tr>'
+				'<tr><td>VAT calculation</td><td>If you are wondering what an amount would look like including or excluding a certain percentage, use the <strong>VAT calculator</strong>.</td><td><em>vat, btw, mwst, tva</em></td><td><kbd>vat 130</kbd><br><kbd>btw 19.75</kbd></td></tr>'
 
 			var helpISBN =
-				'<tr><td>ISBN converter</td><td>If you ever had the need to convert, hyphenate or breakdown an ISBN, the <strong>ISBN converter</strong> is your friend. It accepts any type of ISBN and prints out a list of all its variations and parts</td><td><em>isbn, i</em></td><td>isbn 978-3-16-148410-0<br>i 316148410X</td></tr>'
+				'<tr><td>ISBN converter</td><td>If you ever had the need to convert, hyphenate or breakdown an ISBN, the <strong>ISBN converter</strong> is your friend. It accepts any type of ISBN and prints out a list of all its variations and parts</td><td><em>isbn, i</em></td><td><kbd>isbn 978-3-16-148410-0</kbd><br><kbd>i 316148410X</kbd></td></tr>'
 
 			var helpSearch =
-				'<tr><td>Book search</td><td>Looking for a book? HumphreyBot can help you search with a simple <strong>Book search</strong>. Just enter any search criteria and it will print a list of the top three search results, using the <a href="https://books.google.com" target="_blank">Google Books API</a>.</td><td><em>search, s, query, q</em></td><td>search ulysses joyce<br>s grapes wrath steinbeck<br>q 9780679732266</td></tr>'
+				'<tr><td>Book search</td><td>Looking for a book? HumphreyBot can help you search with a simple <strong>Book search</strong>. Just enter any search criteria and it will print a list of the top three search results, using the <a href="https://books.google.com" target="_blank">Google Books API</a>.</td><td><em>search, s, query, q</em></td><td><kbd>search ulysses joyce</kbd><br><kbd>s grapes wrath steinbeck</kbd><br><kbd>q 9780679732266</kbd></td></tr>'
 
 			var helpCalc =
-				'<tr><td>Calculation</td><td>HumphreyBot will do simple <strong>Calculation</strong>, no big deal.</td><td></td><td>2 * 8 - 3<br>(49 / 7) + 24</td></tr>'
+				'<tr><td>Calculation</td><td>HumphreyBot will do simple <strong>Calculation</strong>, no big deal.</td><td></td><td><kbd>2 * 8 - 3</kbd><br><kbd>(49 / 7) + 24</kbd></td></tr>'
 
 			let tableContents =
 				helpCurrency + helpVAT + helpISBN + helpSearch + helpCalc
@@ -830,7 +834,7 @@ $(document).on('submit', '#humphreybot', e => {
 				hbReply(
 					'Input <strong color="red">' +
 						msg +
-						'</strong> not recognized. Please type <em>help</em> for a list of commands.<br>'
+						'</strong> not recognized. Please type <kbd>help</kbd> for a list of commands.<br>'
 				)
 			} else {
 				hbReply(msg + ' = <strong>' + eval(msg) + '</strong>', 1)
@@ -860,3 +864,22 @@ function hbReply(reply, time) {
 		)
 	}, time ? time : Math.floor(Math.random() * 750) + 250)
 }
+
+$(document).on('click', '#show-currencies', e => {
+	e.preventDefault()
+	$.getJSON(
+		document.getElementsByTagName('base')[0].href + '/wp-json/curr/newest',
+		data => {
+			var reply =
+				'<strong>Available currencies (<em>' +
+				Object.keys(data.rates).length +
+				'</em>)</strong>: '
+
+			for (var key in data.rates) {
+				reply = reply + key + ', '
+			}
+
+			hbReply(reply)
+		}
+	)
+})
