@@ -22,10 +22,10 @@
 		<meta name="description" content="<?php bloginfo("description"); ?>">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 
-		<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-		<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,700italic,700,800,800italic' rel='stylesheet' type='text/css'>
+		<!-- <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,300italic,400italic,700italic,700,800,800italic' rel='stylesheet' type='text/css'> -->
 
-		<!-- <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/styles/style.min.css"> -->
+		<link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/fonts/fonts.css">
 
 		<link rel="shortcut icon" type="image/png" href="<?php echo get_template_directory_uri(); ?>/images/ic_accessibility_black_24dp_1x.png">
 
